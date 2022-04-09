@@ -32,3 +32,36 @@ func TestSetGet(t *testing.T) {
 		}
 	}
 }
+
+func TestParent(t *testing.T) {
+	tr := New()
+	s0 := NewNode("s0")
+	tr.LinkChildren(tr.root, -1, s0)
+
+	tests := []struct {
+		node, parent *Node
+		err          error
+	}{
+		{s0, tr.root, nil},
+		{tr.root, nil, ErrParentMissing},
+	}
+	for i, tst := range tests {
+		got, err := tst.node.Parent()
+		switch {
+		case err != nil && tst.err == nil:
+			t.Errorf("%d: Parent() returns an error %q, should be nil",
+				i, err.Error())
+		case err == nil && tst.err != nil:
+			t.Errorf("%d: Parent() returns no error, should be %q",
+				i, tst.err.Error())
+		case err != nil && tst.err != nil && err != tst.err:
+			t.Errorf("%d: Parent() returns error %q, should be %q",
+				i, err.Error(), tst.err.Error())
+		case err == nil && tst.err == nil:
+			if got != tst.parent {
+				t.Errorf("%d: LinkChildren() returns %q, should be %q",
+					i, got.data, tst.parent.data)
+			}
+		}
+	}
+}
