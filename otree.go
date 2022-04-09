@@ -44,6 +44,7 @@ func (tr *Tree) LinkChildren(parent *Node, i int, children ...*Node) error {
 	}
 
 	for _, nd := range children {
+		nd.parent = parent
 		tr.present[nd] = none // mark nodes as present in the tree
 	}
 
