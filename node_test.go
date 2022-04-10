@@ -110,3 +110,23 @@ func TestLevel(t *testing.T) {
 		t.Errorf("grandChild.Level() returns %d, should be 2", got)
 	}
 }
+
+func TestAncestors(t *testing.T) {
+	tr := New()
+	child := NewNode(0)
+	grandChild := NewNode(1)
+
+	tr.LinkChildren(tr.root, 0, child)
+	tr.LinkChildren(child, 0, grandChild)
+
+	a := grandChild.Ancestors()
+	if got := len(a); got != 2 {
+		t.Errorf("len(grandChild.Ancestors()) returns %d, should be 2", got)
+	}
+	if a[0] != child {
+		t.Errorf("grandChild.Ancestors()[0] is not child")
+	}
+	if a[1] != tr.root {
+		t.Errorf("grandChild.Ancestors()[1] is not root")
+	}
+}

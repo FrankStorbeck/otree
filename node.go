@@ -9,6 +9,17 @@ type Node struct {
 	siblings []*Node     // sibling nodes
 }
 
+// Ancestors returns the node's ancestors.The first one is it parent, the next
+// one it grandparent and so on.
+func (nd *Node) Ancestors() []*Node {
+	ancstrs := []*Node{}
+
+	for p := nd.parent; p != nil; p = p.parent {
+		ancstrs = append(ancstrs, p)
+	}
+	return ancstrs
+}
+
 // NewNode returns a new node
 func NewNode(data interface{}) *Node {
 	return &Node{data: data, siblings: make([]*Node, 0)}
