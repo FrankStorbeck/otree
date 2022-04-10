@@ -130,3 +130,22 @@ func TestAncestors(t *testing.T) {
 		t.Errorf("grandChild.Ancestors()[1] is not root")
 	}
 }
+
+func TestHeight(t *testing.T) {
+	tr := New()
+	child := NewNode(0)
+	grandChild := NewNode(1)
+
+	tr.LinkChildren(tr.root, 0, child)
+	tr.LinkChildren(child, 0, grandChild)
+
+	if got := tr.root.Height(); got != 2 {
+		t.Errorf("root.Height() returns %d, should be 2", got)
+	}
+	if got := child.Height(); got != 1 {
+		t.Errorf("child.Height() returns %d, should be 1", got)
+	}
+	if got := grandChild.Height(); got != 0 {
+		t.Errorf("grandChild.Height() returns %d, should be 0", got)
+	}
+}

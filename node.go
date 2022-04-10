@@ -9,6 +9,9 @@ type Node struct {
 	siblings []*Node     // sibling nodes
 }
 
+// WalkFunc is a function type that can be performed on nodes.
+type WalkFunc func(node *Node, data interface{})
+
 // Ancestors returns the node's ancestors.The first one is it parent, the next
 // one it grandparent and so on.
 func (nd *Node) Ancestors() []*Node {
@@ -30,6 +33,20 @@ func (nd *Node) Get() interface{} {
 	return nd.data
 }
 
+// Height returns the height
+func (nd *Node) Height() int {
+	var height int
+	f := func(node *Node, data interface{}) {
+		if len(node.siblings) == 0 {
+			if h := node.level - nd.level; h > height {
+				height = h
+			}
+		}
+	}
+	nd.Walk(nil, f)
+	return height
+}
+
 // Index returns the index of a child in the list of siblings. If it cannot be
 // found it returns ErrNoNodeFound.
 func (nd *Node) Index(child *Node) (int, error) {
@@ -42,7 +59,7 @@ func (nd *Node) Index(child *Node) (int, error) {
 	return -1, ErrNoNodeFound
 }
 
-// Level returns the level of the node
+// Level returns the level of the node. It is the same as its depth.
 func (nd *Node) Level() int {
 	return nd.level
 }
@@ -60,4 +77,12 @@ func (nd *Node) Parent() (parent *Node, err error) {
 // Set stores the data
 func (nd *Node) Set(data interface{}) {
 	nd.data = data
+}
+
+// Walk executes f for nd and all its descendants
+func (nd *Node) Walk(data interface{}, f WalkFunc) {
+	f(nd, data)
+	for _, sbl := range nd.siblings {
+		sbl.Walk(data, f)
+	}
 }
