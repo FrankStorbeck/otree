@@ -1,6 +1,7 @@
 package otree
 
 import (
+	"errors"
 	"testing"
 )
 
@@ -63,5 +64,30 @@ func TestParent(t *testing.T) {
 					i, got.data, tst.parent.data)
 			}
 		}
+	}
+}
+
+func TestIndex(t *testing.T) {
+	tr := New()
+	sbls := []*Node{NewNode(0), NewNode(1), NewNode(2), NewNode(3), NewNode(4)}
+	tr.LinkChildren(tr.root, -1, sbls...)
+	for i, sbl := range sbls {
+		idx, err := tr.root.Index(sbl)
+		if err != nil {
+			t.Errorf("Index(sbl) returns error %q, should be nil",
+				err.Error())
+		} else if i != idx {
+			t.Errorf("Index(sbl) returns %d, should be %d", idx, i)
+		}
+	}
+
+	nd := NewNode(5)
+	_, err := tr.root.Index(nd)
+	if err == nil {
+		t.Errorf("Index(sbl) returns no error, should be %q",
+			ErrNoNodeFound.Error())
+	} else if !errors.Is(err, ErrNoNodeFound) {
+		t.Errorf("Index(nd) returns error %q, should be %q",
+			err.Error(), ErrNoNodeFound.Error())
 	}
 }

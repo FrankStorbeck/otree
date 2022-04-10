@@ -18,6 +18,18 @@ func (nd *Node) Get() interface{} {
 	return nd.data
 }
 
+// Index returns the index of a child in the list of siblings. If it cannot be
+// found it returns ErrNoNodeFound.
+func (nd *Node) Index(child *Node) (int, error) {
+	for i, sbl := range nd.siblings {
+		if sbl == child {
+			return i, nil
+		}
+	}
+
+	return -1, ErrNoNodeFound
+}
+
 // Parent returns the parent node. When the parent doesn't exist
 // ErrParentMissing will be returned.
 func (nd *Node) Parent() (parent *Node, err error) {
