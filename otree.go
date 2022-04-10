@@ -43,8 +43,10 @@ func (tr *Tree) LinkChildren(parent *Node, i int, children ...*Node) error {
 		}
 	}
 
+	level := parent.level + 1
 	for _, nd := range children {
 		nd.parent = parent
+		nd.level = level
 		tr.present[nd] = none // mark nodes as present in the tree
 	}
 

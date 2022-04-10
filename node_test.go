@@ -91,3 +91,22 @@ func TestIndex(t *testing.T) {
 			err.Error(), ErrNoNodeFound.Error())
 	}
 }
+
+func TestLevel(t *testing.T) {
+	tr := New()
+	child := NewNode(0)
+	grandChild := NewNode(1)
+
+	tr.LinkChildren(tr.root, 0, child)
+	tr.LinkChildren(child, 0, grandChild)
+
+	if got := tr.root.Level(); got != 0 {
+		t.Errorf("root.Level() returns %d, should be 0", got)
+	}
+	if got := child.Level(); got != 1 {
+		t.Errorf("child.Level() returns %d, should be 1", got)
+	}
+	if got := grandChild.Level(); got != 2 {
+		t.Errorf("grandChild.Level() returns %d, should be 2", got)
+	}
+}

@@ -4,6 +4,7 @@ package otree
 // external nodes store data.
 type Node struct {
 	data     interface{} // data
+	level    int         // the level of the node
 	parent   *Node       // parent node
 	siblings []*Node     // sibling nodes
 }
@@ -28,6 +29,11 @@ func (nd *Node) Index(child *Node) (int, error) {
 	}
 
 	return -1, ErrNoNodeFound
+}
+
+// Level returns the level of the node
+func (nd *Node) Level() int {
+	return nd.level
 }
 
 // Parent returns the parent node. When the parent doesn't exist
