@@ -12,6 +12,11 @@ type Tree struct {
 	present map[*Node]noneT // map with all nodes present in the tree
 }
 
+// Height returns the height of the tree
+func (tr *Tree) Height() int {
+	return tr.root.Height()
+}
+
 // New returns a new initialised Tree
 func New() Tree {
 	tr := Tree{

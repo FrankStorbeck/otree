@@ -77,3 +77,16 @@ func print(node *Node) string {
 	}
 	return sb.String()
 }
+
+func TestTreeHeight(t *testing.T) {
+	tr := New()
+	child := NewNode(0)
+	grandChild := NewNode(1)
+
+	tr.LinkChildren(tr.root, 0, child)
+	tr.LinkChildren(child, 0, grandChild)
+
+	if got := tr.Height(); got != 2 {
+		t.Errorf("tr.Height() returns %d, should be 2", got)
+	}
+}
