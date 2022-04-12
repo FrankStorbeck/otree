@@ -18,6 +18,7 @@ func insertNodes(nodes1, nodes2 []*Node, i int) []*Node {
 	return r
 }
 
+// invertSlice inverts the sequence of the nodes
 func invertSlice(nodes []*Node) []*Node {
 	for i, j := 0, len(nodes)-1; i < j; i, j = i+1, j-1 {
 		nodes[i], nodes[j] = nodes[j], nodes[i]
@@ -25,6 +26,7 @@ func invertSlice(nodes []*Node) []*Node {
 	return nodes
 }
 
+// mergePaths merges the up and down paths via the lowest shared node
 func mergePaths(up, down []*Node) []*Node {
 	up, down = invertSlice(up), invertSlice(down)
 

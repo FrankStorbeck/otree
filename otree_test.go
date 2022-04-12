@@ -1,8 +1,6 @@
 package otree
 
 import (
-	"fmt"
-	"strings"
 	"testing"
 )
 
@@ -33,7 +31,7 @@ func TestLinkNodesAndDegree(t *testing.T) {
 		var got string
 		err := tr.LinkChildren(tst.node, tst.where, tst.nodes...)
 		if err == nil {
-			got = print(tr.root)
+			got = tr.String()
 		}
 
 		switch {
@@ -57,30 +55,6 @@ func TestLinkNodesAndDegree(t *testing.T) {
 				i, d, tst.degree)
 		}
 	}
-}
-
-// print creates a string that displays the content of a node
-func print(node *Node) string {
-	sb := strings.Builder{}
-
-	switch k := node.data.(type) {
-	case int:
-		fmt.Fprintf(&sb, "%d", k)
-	case string:
-		fmt.Fprintf(&sb, "%s", k)
-	default:
-		fmt.Fprintf(&sb, "?")
-	}
-	if len(node.siblings) > 0 {
-		fmt.Fprintf(&sb, "[")
-		space := ""
-		for _, sbl := range node.siblings {
-			fmt.Fprintf(&sb, "%s%s", space, print(sbl))
-			space = " "
-		}
-		fmt.Fprintf(&sb, "]")
-	}
-	return sb.String()
 }
 
 func TestTreeHeight(t *testing.T) {

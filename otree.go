@@ -91,6 +91,11 @@ func (tr *Tree) Size() int {
 	return len(tr.present)
 }
 
+// String creates a string that displays the content of a tree
+func (tr *Tree) String() string {
+	return tr.root.String()
+}
+
 // Width returns the width for a given level
 func (tr *Tree) Width(level int) int {
 	width := 0

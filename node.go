@@ -1,5 +1,10 @@
 package otree
 
+import (
+	"fmt"
+	"strings"
+)
+
 // Node represents internal and external nodes. Internal nodes have children,
 // external nodes store data.
 type Node struct {
@@ -47,6 +52,7 @@ func (nd *Node) Get() interface{} {
 // Height returns the height
 func (nd *Node) Height() int {
 	var height int
+
 	f := func(node *Node, data interface{}) {
 		if len(node.siblings) == 0 {
 			if h := node.level - nd.level; h > height {
@@ -54,6 +60,7 @@ func (nd *Node) Height() int {
 			}
 		}
 	}
+
 	nd.Walk(nil, f)
 	return height
 }
@@ -96,6 +103,24 @@ func (nd *Node) Path(endNode *Node) []*Node {
 // Set stores the data
 func (nd *Node) Set(data interface{}) {
 	nd.data = data
+}
+
+// String creates a string that displays the content of a node and of all of its
+// descendants.
+func (nd *Node) String() string {
+	sb := strings.Builder{}
+
+	fmt.Fprintf(&sb, "%v", nd.data)
+	if len(nd.siblings) > 0 {
+		fmt.Fprintf(&sb, "[")
+		space := ""
+		for _, sbl := range nd.siblings {
+			fmt.Fprintf(&sb, "%s%s", space, sbl.String())
+			space = " "
+		}
+		fmt.Fprintf(&sb, "]")
+	}
+	return sb.String()
 }
 
 // Walk executes f for nd and all its descendants

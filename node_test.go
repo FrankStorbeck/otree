@@ -177,6 +177,7 @@ func TestPathAndDistance(t *testing.T) {
 
 	for _, tst := range tests {
 		path := tst.start.Path(tst.end)
+
 		got := "["
 		space := ""
 		for _, nd := range path {
@@ -189,6 +190,7 @@ func TestPathAndDistance(t *testing.T) {
 			space = " "
 		}
 		got += "]"
+
 		if got != tst.want {
 			t.Errorf("Path() results in %q, should be %q", got, tst.want)
 		} else if d := tst.start.Distance(tst.end); d != tst.distance {
