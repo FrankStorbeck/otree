@@ -1,7 +1,8 @@
 # tree
 
 OTree is a simple library for ordered tree data structures. It follows the
-description from https://en.wikipedia.org/wiki/Tree_(data_structure).
+description from
+[wikipedia.org/wiki/Tree_(data_structure)](https://en.wikipedia.org/wiki/Tree_(data_structure)).
 
 ## Terminology
 
@@ -15,7 +16,7 @@ are `sibling` nodes. Typically siblings have an order, with the first one
 conventionally drawn on the left.
 
 An `internal` node is any node of a tree that has child nodes. Similarly, an
-`external` node, `leaf` node, is any node that does not have child nodes.
+`external` node, or `leaf` node, is any node that does not have child nodes.
 
 The `height` of a node is the length of the longest downward `path` to a leaf
 from that node. The height of the root is the height of the tree. The `depth` of
@@ -40,3 +41,17 @@ An `ordered` tree is one in which an ordering is specified for the children of a
 node.
 
 ## Example
+
+```
+func main() {
+  tr := New("root")
+
+  level1 := []*Node{NewNode(10), NewNode(11), NewNode(12), NewNode(13)}
+  tr.LinkChildren(tr.Root(), 0, level1...)
+
+  level2 := []*Node{NewNode(20), NewNode(21)}
+  tr.LinkChildren(level1[0], 0, level2...)
+
+  fmt.Println(tr.String()) // output: root[10[20 21] 11 12 13]
+}
+```

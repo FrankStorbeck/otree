@@ -198,3 +198,15 @@ func TestPathAndDistance(t *testing.T) {
 		}
 	}
 }
+
+// func TestMain(t *testing.T) {
+// 	tr := New("root")
+//
+// 	level1 := []*Node{NewNode(10), NewNode(11), NewNode(12), NewNode(13)}
+// 	tr.LinkChildren(tr.Root(), 0, level1...)
+//
+// 	level2 := []*Node{NewNode(20), NewNode(21)}
+// 	tr.LinkChildren(level1[0], 0, level2...)
+//
+// 	fmt.Println(tr.String()) // output: root[10[20 21] 11 12 13]
+// }
