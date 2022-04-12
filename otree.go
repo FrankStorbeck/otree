@@ -1,4 +1,4 @@
-// Package tree implements an ordered tree  structure.
+// Package otree implements an ordered tree  structure.
 // See: https://en.wikipedia.org/wiki/Tree_(data_structure)
 package otree
 
@@ -12,6 +12,7 @@ type Tree struct {
 	present map[*Node]noneT // map with all nodes present in the tree
 }
 
+// Breadth returns the breadth
 func (tr *Tree) Breadth() int {
 	breadth := 0
 
