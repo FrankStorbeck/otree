@@ -23,6 +23,12 @@ func (nd *Node) Ancestors() []*Node {
 	return ancstrs
 }
 
+// Distance returns the distance to an end node. The distance to itself is zero,
+// The distance to non reachable node is -1.
+func (nd *Node) Distance(endNode *Node) int {
+	return len(nd.Path(endNode)) - 1
+}
+
 // NewNode returns a new node
 func NewNode(data interface{}) *Node {
 	return &Node{data: data, siblings: make([]*Node, 0)}

@@ -151,7 +151,7 @@ func TestHeight(t *testing.T) {
 	}
 }
 
-func TestPath(t *testing.T) {
+func TestPathAndDistance(t *testing.T) {
 	tr := New()
 	children := []*Node{NewNode(10), NewNode(11), NewNode(12)}
 	grandChildren1 := []*Node{NewNode(20), NewNode(21), NewNode(22)}
@@ -164,11 +164,15 @@ func TestPath(t *testing.T) {
 	tests := []struct {
 		start, end *Node
 		want       string
+		distance   int
 	}{
-		{grandChildren1[2], greatGrandChildren1[0], "[22 10 20 30]"},
-		{greatGrandChildren1[0], grandChildren1[2], "[30 20 10 22]"},
-		{greatGrandChildren1[0], children[0], "[30 20 10]"},
-		{greatGrandChildren1[0], children[1], "[30 20 10 root 11]"},
+		{grandChildren1[2], greatGrandChildren1[0], "[22 10 20 30]", 3},
+		{greatGrandChildren1[0], grandChildren1[2], "[30 20 10 22]", 3},
+		{greatGrandChildren1[0], children[0], "[30 20 10]", 2},
+		{greatGrandChildren1[0], children[1], "[30 20 10 root 11]", 4},
+		{children[0], children[0], "[10]", 0},
+		{children[0], NewNode(-1), "[]", -1},
+		{NewNode(-1), children[0], "[]", -1},
 	}
 
 	for _, tst := range tests {
@@ -187,6 +191,8 @@ func TestPath(t *testing.T) {
 		got += "]"
 		if got != tst.want {
 			t.Errorf("Path() results in %q, should be %q", got, tst.want)
+		} else if d := tst.start.Distance(tst.end); d != tst.distance {
+			t.Errorf("Distance() is %d, should be %d", d, tst.distance)
 		}
 	}
 }
