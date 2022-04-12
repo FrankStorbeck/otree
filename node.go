@@ -13,7 +13,7 @@ type Node struct {
 type WalkFunc func(node *Node, data interface{})
 
 // Ancestors returns the node's ancestors.The first one is it parent, the next
-// one it grandparent and so on.
+// one its grandparent and so on.
 func (nd *Node) Ancestors() []*Node {
 	ancstrs := []*Node{}
 
@@ -72,6 +72,14 @@ func (nd *Node) Parent() (parent *Node, err error) {
 		err = ErrParentMissing
 	}
 	return
+}
+
+// Path returns the path to a node. The node and the end node are included into
+// the result.
+func (nd *Node) Path(endNode *Node) []*Node {
+	up := append([]*Node{nd}, nd.Ancestors()...)
+	down := append([]*Node{endNode}, endNode.Ancestors()...)
+	return mergePaths(up, down)
 }
 
 // Set stores the data

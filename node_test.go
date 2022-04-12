@@ -2,6 +2,7 @@ package otree
 
 import (
 	"errors"
+	"fmt"
 	"testing"
 )
 
@@ -147,5 +148,45 @@ func TestHeight(t *testing.T) {
 	}
 	if got := grandChild.Height(); got != 0 {
 		t.Errorf("grandChild.Height() returns %d, should be 0", got)
+	}
+}
+
+func TestPath(t *testing.T) {
+	tr := New()
+	children := []*Node{NewNode(10), NewNode(11), NewNode(12)}
+	grandChildren1 := []*Node{NewNode(20), NewNode(21), NewNode(22)}
+	greatGrandChildren1 := []*Node{NewNode(30), NewNode(31), NewNode(32)}
+
+	tr.LinkChildren(tr.root, 0, children...)
+	tr.LinkChildren(children[0], 0, grandChildren1...)
+	tr.LinkChildren(grandChildren1[0], 0, greatGrandChildren1...)
+
+	tests := []struct {
+		start, end *Node
+		want       string
+	}{
+		{grandChildren1[2], greatGrandChildren1[0], "[22 10 20 30]"},
+		{greatGrandChildren1[0], grandChildren1[2], "[30 20 10 22]"},
+		{greatGrandChildren1[0], children[0], "[30 20 10]"},
+		{greatGrandChildren1[0], children[1], "[30 20 10 root 11]"},
+	}
+
+	for _, tst := range tests {
+		path := tst.start.Path(tst.end)
+		got := "["
+		space := ""
+		for _, nd := range path {
+			switch k := nd.Get().(type) {
+			case int:
+				got += fmt.Sprintf("%s%d", space, k)
+			case string:
+				got += fmt.Sprintf("%s%s", space, k)
+			}
+			space = " "
+		}
+		got += "]"
+		if got != tst.want {
+			t.Errorf("Path() results in %q, should be %q", got, tst.want)
+		}
 	}
 }
