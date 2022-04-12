@@ -86,6 +86,11 @@ func (tr *Tree) LinkChildren(parent *Node, i int, children ...*Node) error {
 	return nil
 }
 
+// Size returns the size of the tree
+func (tr *Tree) Size() int {
+	return len(tr.present)
+}
+
 // Width returns the width for a given level
 func (tr *Tree) Width(level int) int {
 	width := 0

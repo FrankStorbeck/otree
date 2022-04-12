@@ -96,7 +96,7 @@ func TestTreeHeight(t *testing.T) {
 	}
 }
 
-func TestWidthAndBreath(t *testing.T) {
+func TestWidthAndBreathAndSize(t *testing.T) {
 	tr := New()
 	children := []*Node{NewNode(10), NewNode(11), NewNode(12)}
 	grandChildren1 := []*Node{NewNode(20), NewNode(21), NewNode(22), NewNode(23)}
@@ -112,7 +112,24 @@ func TestWidthAndBreath(t *testing.T) {
 			t.Errorf("Width(%d) returns %d, should be %d", i, w, want[i])
 		}
 	}
-	if b := tr.Breadth(); b != 7 {
-		t.Errorf("Breadth() returns %d, should be 7", b)
+
+	wantB := 0
+	for _, w := range want {
+		if w == 0 {
+			wantB++
+		} else {
+			wantB += (w - 1)
+		}
+	}
+	if b := tr.Breadth(); b != wantB {
+		t.Errorf("Breadth() returns %d, should be %d", b, wantB)
+	}
+
+	wantS := 0
+	for _, w := range want {
+		wantS += w
+	}
+	if s := tr.Size(); s != wantS {
+		t.Errorf("Size() returns %d, should be %d", s, wantS)
 	}
 }
