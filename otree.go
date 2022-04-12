@@ -12,6 +12,20 @@ type Tree struct {
 	present map[*Node]noneT // map with all nodes present in the tree
 }
 
+// Degree returns the degree of the tree
+func (tr *Tree) Degree() int {
+	degree := 0
+
+	f := func(node *Node, data interface{}) {
+		if d := node.Degree(); d > degree {
+			degree = d
+		}
+	}
+
+	tr.root.Walk(nil, f)
+	return degree
+}
+
 // Height returns the height of the tree
 func (tr *Tree) Height() int {
 	return tr.root.Height()

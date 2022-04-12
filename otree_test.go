@@ -6,26 +6,27 @@ import (
 	"testing"
 )
 
-func TestLinkNodes(t *testing.T) {
+func TestLinkNodesAndDegree(t *testing.T) {
 	tr := New()
 	s0 := NewNode("s0")
 	nWC := NewNode("node with child")
 	nWC.siblings = []*Node{NewNode("child")}
 
 	tests := []struct {
-		node  *Node
-		where int
-		nodes []*Node
-		err   error
-		want  string
+		node   *Node
+		where  int
+		nodes  []*Node
+		err    error
+		want   string
+		degree int
 	}{
-		{tr.root, 0, []*Node{s0}, nil, "root[s0]"},
-		{tr.root, -1, []*Node{NewNode("s1"), NewNode("s2")}, nil, "root[s1 s2 s0]"},
-		{tr.root, 1, []*Node{NewNode("s3"), NewNode("s4")}, nil, "root[s1 s3 s4 s2 s0]"},
-		{tr.root, 500, []*Node{NewNode("s5")}, nil, "root[s1 s3 s4 s2 s0 s5]"},
-		{tr.root, -1, []*Node{tr.root}, ErrDuplicateNodeFound, ""},
-		{NewNode(""), 1, []*Node{tr.root}, ErrNodeNotFound, ""},
-		{tr.root, 1, []*Node{nWC}, ErrNodeMustNotHaveSiblings, ""},
+		{tr.root, 0, []*Node{s0}, nil, "root[s0]", 1},
+		{tr.root, -1, []*Node{NewNode("s1"), NewNode("s2")}, nil, "root[s1 s2 s0]", 3},
+		{tr.root, 1, []*Node{NewNode("s3"), NewNode("s4")}, nil, "root[s1 s3 s4 s2 s0]", 5},
+		{tr.root, 500, []*Node{NewNode("s5")}, nil, "root[s1 s3 s4 s2 s0 s5]", 6},
+		{tr.root, -1, []*Node{tr.root}, ErrDuplicateNodeFound, "", 6},
+		{NewNode(""), 1, []*Node{tr.root}, ErrNodeNotFound, "", 6},
+		{tr.root, 1, []*Node{nWC}, ErrNodeMustNotHaveSiblings, "", 6},
 	}
 
 	for i, tst := range tests {
@@ -50,6 +51,10 @@ func TestLinkNodes(t *testing.T) {
 				t.Errorf("%d: LinkChildren() returns %q, should be %q",
 					i, got, tst.want)
 			}
+		}
+		if d := tr.Degree(); d != tst.degree {
+			t.Errorf("%d: Degree() returns %d, should be %d",
+				i, d, tst.degree)
 		}
 	}
 }
