@@ -95,3 +95,21 @@ func TestTreeHeight(t *testing.T) {
 		t.Errorf("tr.Height() returns %d, should be 2", got)
 	}
 }
+
+func TestWidth(t *testing.T) {
+	tr := New()
+	children := []*Node{NewNode(10), NewNode(11), NewNode(12)}
+	grandChildren1 := []*Node{NewNode(20), NewNode(21), NewNode(22), NewNode(23)}
+	greatGrandChildren1 := []*Node{NewNode(30), NewNode(31)}
+
+	tr.LinkChildren(tr.root, 0, children...)
+	tr.LinkChildren(children[1], 0, grandChildren1...)
+	tr.LinkChildren(grandChildren1[2], 0, greatGrandChildren1...)
+
+	want := []int{1, 3, 4, 2, 0}
+	for i := 0; i < len(want); i++ {
+		if w := tr.Width(i); w != want[i] {
+			t.Errorf("Width(%d) returns %d, should be %d", i, w, want[i])
+		}
+	}
+}

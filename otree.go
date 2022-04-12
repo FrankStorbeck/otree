@@ -72,3 +72,17 @@ func (tr *Tree) LinkChildren(parent *Node, i int, children ...*Node) error {
 	parent.siblings = insertNodes(parent.siblings, children, i)
 	return nil
 }
+
+// Width returns the width for a given level
+func (tr *Tree) Width(level int) int {
+	width := 0
+
+	f := func(node *Node, data interface{}) {
+		if node.Level() == level {
+			width++
+		}
+	}
+
+	tr.root.Walk(nil, f)
+	return width
+}
