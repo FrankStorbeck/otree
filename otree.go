@@ -44,10 +44,10 @@ func (tr *Tree) Height() int {
 	return tr.root.Height()
 }
 
-// New returns a new initialised Tree
-func New() Tree {
+// New returns a new initialised Tree with data stored in the root node
+func New(data interface{}) Tree {
 	tr := Tree{
-		root:    NewNode("root"),
+		root:    NewNode(data),
 		present: make(map[*Node]noneT, 0),
 	}
 	tr.present[tr.root] = none
@@ -84,6 +84,11 @@ func (tr *Tree) LinkChildren(parent *Node, i int, children ...*Node) error {
 
 	parent.siblings = insertNodes(parent.siblings, children, i)
 	return nil
+}
+
+// Root returns the root node
+func (tr *Tree) Root() *Node {
+	return tr.root
 }
 
 // Size returns the size of the tree

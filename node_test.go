@@ -36,7 +36,7 @@ func TestSetGet(t *testing.T) {
 }
 
 func TestParent(t *testing.T) {
-	tr := New()
+	tr := New("root")
 	s0 := NewNode("s0")
 	tr.LinkChildren(tr.root, -1, s0)
 
@@ -69,7 +69,7 @@ func TestParent(t *testing.T) {
 }
 
 func TestIndex(t *testing.T) {
-	tr := New()
+	tr := New("root")
 	sbls := []*Node{NewNode(0), NewNode(1), NewNode(2), NewNode(3), NewNode(4)}
 	tr.LinkChildren(tr.root, -1, sbls...)
 	for i, sbl := range sbls {
@@ -94,7 +94,7 @@ func TestIndex(t *testing.T) {
 }
 
 func TestLevel(t *testing.T) {
-	tr := New()
+	tr := New("root")
 	child := NewNode(0)
 	grandChild := NewNode(1)
 
@@ -113,7 +113,7 @@ func TestLevel(t *testing.T) {
 }
 
 func TestAncestors(t *testing.T) {
-	tr := New()
+	tr := New("root")
 	child := NewNode(0)
 	grandChild := NewNode(1)
 
@@ -133,7 +133,7 @@ func TestAncestors(t *testing.T) {
 }
 
 func TestHeight(t *testing.T) {
-	tr := New()
+	tr := New("root")
 	child := NewNode(0)
 	grandChild := NewNode(1)
 
@@ -152,7 +152,7 @@ func TestHeight(t *testing.T) {
 }
 
 func TestPathAndDistance(t *testing.T) {
-	tr := New()
+	tr := New("root")
 	children := []*Node{NewNode(10), NewNode(11), NewNode(12)}
 	grandChildren1 := []*Node{NewNode(20), NewNode(21), NewNode(22)}
 	greatGrandChildren1 := []*Node{NewNode(30), NewNode(31), NewNode(32)}

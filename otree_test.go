@@ -5,7 +5,7 @@ import (
 )
 
 func TestLinkNodesAndDegree(t *testing.T) {
-	tr := New()
+	tr := New("root")
 	s0 := NewNode("s0")
 	nWC := NewNode("node with child")
 	nWC.siblings = []*Node{NewNode("child")}
@@ -58,7 +58,7 @@ func TestLinkNodesAndDegree(t *testing.T) {
 }
 
 func TestTreeHeight(t *testing.T) {
-	tr := New()
+	tr := New("root")
 	child := NewNode(0)
 	grandChild := NewNode(1)
 
@@ -71,7 +71,7 @@ func TestTreeHeight(t *testing.T) {
 }
 
 func TestWidthAndBreathAndSize(t *testing.T) {
-	tr := New()
+	tr := New("root")
 	children := []*Node{NewNode(10), NewNode(11), NewNode(12)}
 	grandChildren1 := []*Node{NewNode(20), NewNode(21), NewNode(22), NewNode(23)}
 	greatGrandChildren1 := []*Node{NewNode(30), NewNode(31)}
