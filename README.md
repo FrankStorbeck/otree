@@ -1,6 +1,6 @@
 # tree
 
-OTree is a simple library for ordered tree data structures. It follows the
+Otree is a simple library for ordered tree data structures. It follows the
 description from
 [wikipedia.org/wiki/Tree_(data_structure)](https://en.wikipedia.org/wiki/Tree_(data_structure)).
 
