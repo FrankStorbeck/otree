@@ -1,14 +1,18 @@
 package otree
 
 import (
+	"math"
 	"testing"
 )
 
 func TestLinkNodesAndDegree(t *testing.T) {
 	tr := New("root")
 	s0 := NewNode("s0")
-	nWC := NewNode("node with child")
-	nWC.siblings = []*Node{NewNode("child")}
+	nWC0 := NewNode("parent")
+	child := NewNode("child")
+	nWC0.siblings = []*Node{child}
+	nWC1 := NewNode("parent")
+	nWC1.siblings = []*Node{child}
 
 	tests := []struct {
 		node   *Node
@@ -21,10 +25,11 @@ func TestLinkNodesAndDegree(t *testing.T) {
 		{tr.root, 0, []*Node{s0}, nil, "root[s0]", 1},
 		{tr.root, -1, []*Node{NewNode("s1"), NewNode("s2")}, nil, "root[s1 s2 s0]", 3},
 		{tr.root, 1, []*Node{NewNode("s3"), NewNode("s4")}, nil, "root[s1 s3 s4 s2 s0]", 5},
-		{tr.root, 500, []*Node{NewNode("s5")}, nil, "root[s1 s3 s4 s2 s0 s5]", 6},
+		{tr.root, math.MaxInt, []*Node{NewNode("s5")}, nil, "root[s1 s3 s4 s2 s0 s5]", 6},
 		{tr.root, -1, []*Node{tr.root}, ErrDuplicateNodeFound, "", 6},
 		{NewNode(""), 1, []*Node{tr.root}, ErrNodeNotFound, "", 6},
-		{tr.root, 1, []*Node{nWC}, ErrNodeMustNotHaveSiblings, "", 6},
+		{tr.root, 1, []*Node{nWC0}, nil, "root[s1 parent[child] s3 s4 s2 s0 s5]", 7},
+		{tr.root, 1, []*Node{nWC1}, ErrDuplicateNodeFound, "", 7},
 	}
 
 	for i, tst := range tests {

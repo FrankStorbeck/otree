@@ -1,5 +1,16 @@
 package otree
 
+// markAndAssignLevel marks the node and its descendants as present in the tree
+// and reassigns the levels for them.
+func (tr *Tree) markAndAssignLevel(nd *Node, l int) {
+	tr.present[nd] = none // mark nodes as present
+	nd.level = l
+	l++
+	for _, sblng := range nd.siblings {
+		tr.markAndAssignLevel(sblng, l)
+	}
+}
+
 // insertNodes inserts nodes2 into nodes1 before index i
 func insertNodes(nodes1, nodes2 []*Node, i int) []*Node {
 	l1 := len(nodes1)
