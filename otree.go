@@ -80,10 +80,9 @@ func (tr *Tree) LinkChildren(parent *Node, i int, children ...*Node) error {
 		}
 	}
 
-	level := parent.level + 1
 	for _, nd := range children {
 		nd.parent = parent
-		tr.markAndAssignLevel(nd, level)
+		tr.mark(nd)
 	}
 
 	parent.siblings = insertNodes(parent.siblings, children, i)

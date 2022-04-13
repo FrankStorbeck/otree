@@ -2,12 +2,10 @@ package otree
 
 // markAndAssignLevel marks the node and its descendants as present in the tree
 // and reassigns the levels for them.
-func (tr *Tree) markAndAssignLevel(nd *Node, l int) {
+func (tr *Tree) mark(nd *Node) {
 	tr.present[nd] = none // mark nodes as present
-	nd.level = l
-	l++
 	for _, sblng := range nd.siblings {
-		tr.markAndAssignLevel(sblng, l)
+		tr.mark(sblng)
 	}
 }
 

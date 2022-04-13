@@ -9,7 +9,6 @@ import (
 // external nodes store data.
 type Node struct {
 	data     interface{} // data
-	level    int         // the level of the node
 	parent   *Node       // parent node
 	siblings []*Node     // sibling nodes
 }
@@ -52,10 +51,11 @@ func (nd *Node) Get() interface{} {
 // Height returns the height
 func (nd *Node) Height() int {
 	var height int
+	l0 := nd.Level()
 
 	f := func(node *Node, data interface{}) {
 		if len(node.siblings) == 0 {
-			if h := node.level - nd.level; h > height {
+			if h := node.Level() - l0; h > height {
 				height = h
 			}
 		}
@@ -79,7 +79,11 @@ func (nd *Node) Index(child *Node) (int, error) {
 
 // Level returns the level of the node. It is the same as its depth.
 func (nd *Node) Level() int {
-	return nd.level
+	n := 0
+	for p := nd.parent; p != nil; p = p.parent {
+		n++
+	}
+	return n
 }
 
 // Parent returns the parent node. When the parent doesn't exist
