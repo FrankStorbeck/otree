@@ -104,18 +104,37 @@ func (tr Tree) RemoveNode(node *Node) error {
 	if err != nil {
 		return err
 	}
-	l := len(p.siblings)
+	_, err = tr.RemoveSibling(p, i)
+
+	return err
+}
+
+// RemoveSibling removes the sibling with index i from a parent. It returns a
+// pointer to the removed sibling.
+func (tr Tree) RemoveSibling(parent *Node, i int) (*Node, error) {
+	l := len(parent.siblings)
 
 	siblings := make([]*Node, l-1)
-	copy(siblings, p.siblings[:i])
-	copy(siblings[i:], p.siblings[i+1:])
-	p.siblings = siblings
+	copy(siblings, parent.siblings[:i])
+	deletedNode := parent.siblings[i]
+	copy(siblings[i:], parent.siblings[i+1:])
+	parent.siblings = siblings
 
-	node.Walk(nil, func(nd *Node, data interface{}) {
+	deletedNode.Walk(nil, func(nd *Node, data interface{}) {
 		delete(tr.present, nd)
 	})
 
-	return nil
+	return deletedNode, nil
+}
+
+// RemoveSiblings removes all siblings from a parent.
+func (tr Tree) RemoveSiblings(parent *Node) {
+	for _, sblng := range parent.siblings {
+		sblng.Walk(nil, func(nd *Node, data interface{}) {
+			delete(tr.present, nd)
+		})
+	}
+	parent.siblings = []*Node{}
 }
 
 // Root returns the root node

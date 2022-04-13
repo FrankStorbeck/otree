@@ -108,7 +108,7 @@ func TestWidthAndBreathAndSize(t *testing.T) {
 	}
 }
 
-func TestRemoveNode(t *testing.T) {
+func TestRemoveNodeAndRemoveSiblings(t *testing.T) {
 	tr := New("root")
 	children := []*Node{NewNode(10), NewNode(11), NewNode(12)}
 	grandChildren1 := []*Node{NewNode(20), NewNode(21), NewNode(22), NewNode(23)}
@@ -154,5 +154,14 @@ func TestRemoveNode(t *testing.T) {
 					tst.node.Get(), got)
 			}
 		}
+	}
+
+	tr.RemoveSiblings(tr.Root())
+	if got := tr.String(); got != "root" {
+		t.Errorf("RemoveSiblings(%v) generates %q, should be \"root\"",
+			tr.Root().Get(), got)
+	} else if got := tr.Size(); got != 1 {
+		t.Errorf("After RemoveSiblings(%v) size is %d, should be 1",
+			tr.Root().Get(), got)
 	}
 }
