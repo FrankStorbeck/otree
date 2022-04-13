@@ -87,6 +87,37 @@ func (tr *Tree) LinkChildren(parent *Node, i int, children ...*Node) error {
 	return nil
 }
 
+// RemoveNode removes node and all its descendants from the tree.
+func (tr Tree) RemoveNode(node *Node) error {
+	if node == nil {
+		return ErrNoNodeFound
+	}
+	if node == tr.root {
+		return ErrCannotRemoveRootNode
+	}
+	p, err := node.Parent()
+	if err != nil {
+		return err
+	}
+
+	i, err := p.Index(node)
+	if err != nil {
+		return err
+	}
+	l := len(p.siblings)
+
+	siblings := make([]*Node, l-1)
+	copy(siblings, p.siblings[:i])
+	copy(siblings[i:], p.siblings[i+1:])
+	p.siblings = siblings
+
+	node.Walk(nil, func(nd *Node, data interface{}) {
+		delete(tr.present, nd)
+	})
+
+	return nil
+}
+
 // Root returns the root node
 func (tr *Tree) Root() *Node {
 	return tr.root

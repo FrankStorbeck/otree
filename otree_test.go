@@ -76,7 +76,7 @@ func TestWidthAndBreathAndSize(t *testing.T) {
 	grandChildren1 := []*Node{NewNode(20), NewNode(21), NewNode(22), NewNode(23)}
 	greatGrandChildren1 := []*Node{NewNode(30), NewNode(31)}
 
-	tr.LinkChildren(tr.root, 0, children...)
+	tr.LinkChildren(tr.Root(), 0, children...)
 	tr.LinkChildren(children[1], 0, grandChildren1...)
 	tr.LinkChildren(grandChildren1[2], 0, greatGrandChildren1...)
 
@@ -105,5 +105,54 @@ func TestWidthAndBreathAndSize(t *testing.T) {
 	}
 	if s := tr.Size(); s != wantS {
 		t.Errorf("Size() returns %d, should be %d", s, wantS)
+	}
+}
+
+func TestRemoveNode(t *testing.T) {
+	tr := New("root")
+	children := []*Node{NewNode(10), NewNode(11), NewNode(12)}
+	grandChildren1 := []*Node{NewNode(20), NewNode(21), NewNode(22), NewNode(23)}
+	greatGrandChildren1 := []*Node{NewNode(30), NewNode(31)}
+
+	tr.LinkChildren(tr.Root(), 0, children...)
+	tr.LinkChildren(children[1], 0, grandChildren1...)
+	tr.LinkChildren(grandChildren1[2], 0, greatGrandChildren1...)
+
+	tests := []struct {
+		node *Node
+		err  error
+		want string
+	}{
+		{children[1], nil, "root[10 12]"},
+		{children[1], ErrNoNodeFound, ""},
+		{nil, ErrNoNodeFound, ""},
+		{tr.Root(), ErrCannotRemoveRootNode, ""},
+		{NewNode("-1"), ErrParentMissing, ""},
+	}
+
+	for _, tst := range tests {
+		err := tr.RemoveNode(tst.node)
+		switch {
+		case err != nil && tst.err == nil:
+			t.Errorf("RemoveNode(%v) returns an error %q, should be nil",
+				tst.node.Get(), err.Error())
+
+		case err == nil && tst.err != nil:
+			t.Errorf("RemoveNode(%v) returns no error, should be %q",
+				tst.node.Get(), tst.err.Error())
+
+		case err != nil && tst.err != nil && err != tst.err:
+			t.Errorf("RemoveNode(%v) returns error %q, should be %q",
+				tst.node.Get(), err.Error(), tst.err.Error())
+
+		case err == nil && tst.err == nil:
+			if got := tr.String(); got != tst.want {
+				t.Errorf("RemoveNode(%v) generates %q, should be %q",
+					tst.node.Get(), got, tst.want)
+			} else if got := tr.Size(); got != 3 {
+				t.Errorf("After RemoveNode(%v) size is %d, should be 3",
+					tst.node.Get(), got)
+			}
+		}
 	}
 }
