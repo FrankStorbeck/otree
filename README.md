@@ -1,4 +1,4 @@
-# tree
+# otree
 
 Otree is a simple library for ordered tree data structures. It follows the
 description from
@@ -28,7 +28,7 @@ An `ancestor` is a node reachable by repeated proceeding from child to parent.
 A `descendant` is a node reachable by repeated proceeding from parent to child.
 
 The `degree` of a node is its number of children. A leaf has necessarily degree
-zero. The `degree` of tree is the maximum degree of all nodes in the tree.
+zero. The `degree` of a tree is the maximum degree of all nodes in the tree.
 
 The `distance` is the number of edges along the path between two nodes.
 The `level` of a node is the zero-based counting of edges along the path to the
@@ -40,18 +40,19 @@ The `size` of a tree is the number of nodes in it.
 An `ordered` tree is one in which an ordering is specified for the children of a
 node.
 
+A `subtree` is the tree that starts at some node in the tree. The node acts as the root for this subtree.
+
 ## Example
 
 ```
-func main() {
-  tr := New("root")
+  root := New("root")
 
-  level1 := []*Node{NewNode(10), NewNode(11), NewNode(12), NewNode(13)}
-  tr.LinkChildren(tr.Root(), 0, level1...)
+  level1 := []*Node{New(10), New(11), New(12), New(13)}
+  root.Link(0, level1...)
 
-  level2 := []*Node{NewNode(20), NewNode(21)}
-  tr.LinkChildren(level1[0], 0, level2...)
+  level2 := []*Node{New(20), New(21)}
+  level1[0].Link(0, level2...)
 
-  fmt.Println(tr.String()) // output: root[10[20 21] 11 12 13]
-}
+  fmt.Println(root.String()) // output: root[10[20 21] 11 12 13]
+
 ```

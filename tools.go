@@ -1,14 +1,5 @@
 package otree
 
-// markAndAssignLevel marks the node and its descendants as present in the tree
-// and reassigns the levels for them.
-func (tr *Tree) mark(nd *Node) {
-	tr.present[nd] = none // mark nodes as present
-	for _, sblng := range nd.siblings {
-		tr.mark(sblng)
-	}
-}
-
 // insertNodes inserts nodes2 into nodes1 before index i
 func insertNodes(nodes1, nodes2 []*Node, i int) []*Node {
 	l1 := len(nodes1)
@@ -36,7 +27,7 @@ func invertSlice(nodes []*Node) []*Node {
 }
 
 // mergePaths merges the up and down paths via the lowest shared node
-func mergePaths(up, down []*Node) []*Node {
+func mergePaths(up, down []*Node) ([]*Node, error) {
 	up, down = invertSlice(up), invertSlice(down)
 
 	var l int
@@ -45,7 +36,7 @@ func mergePaths(up, down []*Node) []*Node {
 	}
 
 	if l == 0 || up[0] != down[0] {
-		return []*Node{}
+		return []*Node{}, ErrNodesNotInSameTree
 	}
 
 	i := 1
@@ -63,5 +54,15 @@ func mergePaths(up, down []*Node) []*Node {
 	l = len(up[i:])
 	r[l] = common
 	copy(r[l+1:], down[i:])
-	return r
+	return r, nil
+}
+
+// selectRoot selects the root node. If sub is false it uses the root node of
+// the tree that holds node. Other wise it selects the node itself.
+func selectRoot(node *Node, sub bool) (root *Node) {
+	root = node
+	if !sub {
+		root = root.Root()
+	}
+	return
 }

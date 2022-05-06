@@ -35,9 +35,9 @@ func TestInsert(t *testing.T) {
 		i2 := make([]*Node, tst.l2)
 		for i := 0; i < tst.l1+tst.l2; i++ {
 			if i < tst.l1 {
-				i1[i] = NewNode(i)
+				i1[i] = New(i)
 			} else {
-				i2[i-tst.l1] = NewNode(i)
+				i2[i-tst.l1] = New(i)
 			}
 		}
 		r := insertNodes(i1, i2, tst.i)
@@ -61,7 +61,7 @@ func TestInvertSlice(t *testing.T) {
 	for _, tst := range tests {
 		nodes := []*Node{}
 		for i := 0; i < tst; i++ {
-			nodes = append(nodes, NewNode(i))
+			nodes = append(nodes, New(i))
 		}
 
 		got := invertSlice(nodes)
@@ -100,7 +100,7 @@ func TestMergePaths(t *testing.T) {
 
 		a := make([]*Node, tst.lA)
 		for i := 0; i < tst.lA; i++ {
-			a[tst.lA-i-1] = NewNode(n)
+			a[tst.lA-i-1] = New(n)
 			n++
 		}
 
@@ -111,12 +111,12 @@ func TestMergePaths(t *testing.T) {
 				b[tst.lB-i-1] = a[tst.lA-i-1]
 				c++
 			} else {
-				b[tst.lB-i-1] = NewNode(n)
+				b[tst.lB-i-1] = New(n)
 				n++
 			}
 		}
 
-		got := mergePaths(a, b)
+		got, _ := mergePaths(a, b)
 
 		s := "["
 		space := ""

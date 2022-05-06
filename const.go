@@ -8,6 +8,6 @@ var (
 	ErrDuplicateNodeFound      = errors.New("duplicate node found")
 	ErrNodeMustNotHaveSiblings = errors.New("node must not have siblings")
 	ErrNodeNotFound            = errors.New("node not found")
-	ErrNoNodeFound             = errors.New("no node found ")
+	ErrNodesNotInSameTree      = errors.New("nodes not in same tree")
 	ErrParentMissing           = errors.New("parent missing")
 )
