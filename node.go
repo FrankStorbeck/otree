@@ -204,6 +204,19 @@ func (nd *Node) Set(data interface{}) {
 	nd.data = data
 }
 
+// Sibling returns the sibling for the provided index
+func (nd *Node) Sibling(index int) (*Node, error) {
+	if index < 0 || index >= len(nd.siblings) {
+		return nil, ErrNodeNotFound
+	}
+	return nd.siblings[index], nil
+}
+
+// Siblings returns all the siblings
+func (nd *Node) Siblings() []*Node {
+	return nd.siblings
+}
+
 // String creates a string that displays the node's content and recursivly the
 // contents of all of its descendants.
 func (nd *Node) String() string {
