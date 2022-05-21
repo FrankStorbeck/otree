@@ -190,6 +190,16 @@ func (nd *Node) RemoveSibling(index int) (*Node, error) {
 	return node, nil
 }
 
+// ReplaceSibling replaces the sibling with some given index by the given nodes.
+func (nd *Node) ReplaceSibling(index int, nodes ...*Node) error {
+	if index < 0 || index >= nd.Degree() {
+		return ErrNodeNotFound
+	}
+	nd.RemoveSibling(index)
+	nd.Link(index, nodes...)
+	return nil
+}
+
 // Root returns the node's root.
 func (nd *Node) Root() *Node {
 	node := nd

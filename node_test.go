@@ -365,3 +365,42 @@ func TestRemoveSibling(t *testing.T) {
 		}
 	}
 }
+
+func TestReplaceSibling(t *testing.T) {
+	root := New("root")
+	root.Link(0, New("s0"), New("s1"), New("s2"))
+
+	tests := []struct {
+		i     int
+		nodes []*Node
+		err   error
+		want  string
+	}{
+		{1, []*Node{New("sa")}, nil, "root[s0 sa s2]"},
+		{1, []*Node{New("sb"), New("sc")}, nil, "root[s0 sb sc s2]"},
+		{0, []*Node{New("sd"), New("se")}, nil, "root[sd se sb sc s2]"},
+		{4, []*Node{New("sf")}, nil, "root[sd se sb sc sf]"},
+		{-1, []*Node{New("sg")}, ErrNodeNotFound, ""},
+		{5, []*Node{New("sh")}, ErrNodeNotFound, ""},
+	}
+
+	for _, tst := range tests {
+		err := root.ReplaceSibling(tst.i, tst.nodes...)
+		switch {
+		case err != nil && tst.err == nil:
+			t.Errorf("RemoveSibling(%d) returns an error %q, should be nil",
+				tst.i, err.Error())
+		case err == nil && tst.err != nil:
+			t.Errorf("RemoveSibling(%d) returns no error, should be %q",
+				tst.i, tst.err.Error())
+		case err != nil && tst.err != nil && err != tst.err:
+			t.Errorf("RemoveSibling(%d) returns error %q, should be %q",
+				tst.i, err.Error(), tst.err.Error())
+		case err == nil && tst.err == nil:
+			if got := root.String(); got != tst.want {
+				t.Errorf("ReplaceSibling(%d, %v) returns error %q, should be %q",
+					tst.i, tst.nodes, got, tst.want)
+			}
+		}
+	}
+}
