@@ -1,7 +1,6 @@
 package otree
 
 import (
-	"fmt"
 	"testing"
 )
 
@@ -138,14 +137,14 @@ func TestRemoveNodeAndRemoveSiblings(t *testing.T) {
 	}
 }
 
-func TestMain(t *testing.T) {
-	root := New("root")
-
-	level1 := []*Node{New(10), New(11), New(12), New(13)}
-	root.Link(0, level1...)
-
-	level2 := []*Node{New(20), New(21)}
-	level1[0].Link(0, level2...)
-
-	fmt.Println(root.String()) // output: root[10[20 21] 11 12 13]
-}
+// func TestMain(t *testing.T) {
+// 	root := New("root")
+//
+// 	level1 := []*Node{New(10), New(11), New(12), New(13)}
+// 	root.Link(0, level1...)
+//
+// 	level2 := []*Node{New(20), New(21)}
+// 	level1[0].Link(0, level2...)
+//
+// 	fmt.Println(root.String()) // output: root[10[20 21] 11 12 13]
+// }
