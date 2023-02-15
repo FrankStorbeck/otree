@@ -14,7 +14,7 @@ func Breadth(node *Node, sub bool) int {
 		}
 	}
 
-	selectRoot(node, sub).Walk(nil, f)
+	selectRoot(node, sub).Walk(f, nil)
 	return breadth
 }
 
@@ -30,7 +30,7 @@ func Degree(node *Node, sub bool) int {
 		}
 	}
 
-	selectRoot(node, sub).Walk(nil, f)
+	selectRoot(node, sub).Walk(f, nil)
 	return degree
 }
 
@@ -58,12 +58,12 @@ func Remove(root, node *Node) error {
 			parent = n.parent
 		}
 	}
-	root.Walk(nil, f)
+	root.Walk(f, nil)
 	if parent == nil {
 		return ErrNodeNotFound
 	}
 
-	i, _ := parent.Index(node) // parent always has the sibling
+	i, _ := parent.SiblingIndex(node) // parent always has the sibling
 	_, err := parent.RemoveSibling(i)
 
 	return err
@@ -78,7 +78,7 @@ func Size(node *Node, sub bool) int {
 	f := func(nd *Node, data interface{}) {
 		n++
 	}
-	selectRoot(node, sub).Walk(nil, f)
+	selectRoot(node, sub).Walk(f, nil)
 
 	return n
 }
@@ -95,6 +95,6 @@ func Width(node *Node, level int, sub bool) int {
 		}
 	}
 
-	selectRoot(node, sub).Walk(nil, f)
+	selectRoot(node, sub).Walk(f, nil)
 	return width
 }

@@ -13,7 +13,7 @@ func TestInsert(t *testing.T) {
 	}{
 		{2, 2, 3, "[0 1 2 3]"},
 		{2, 2, 0, "[2 3 0 1]"},
-		{2, 2, -1, "[2 3 0 1]"},
+		{2, 2, AtStart, "[2 3 0 1]"},
 		{2, 2, 1, "[0 2 3 1]"},
 		{2, 1, 3, "[0 1 2]"},
 		{2, 1, 0, "[2 0 1]"},
@@ -21,13 +21,13 @@ func TestInsert(t *testing.T) {
 		{1, 1, 2, "[0 1]"},
 		{1, 1, 0, "[1 0]"},
 		{0, 1, 1, "[0]"},
-		{0, 1, -1, "[0]"},
+		{0, 1, AtStart, "[0]"},
 		{1, 0, 2, "[0]"},
 		{1, 0, 1, "[0]"},
 		{1, 0, 0, "[0]"},
 		{0, 0, 0, "[]"},
 		{0, 0, 1, "[]"},
-		{0, 0, -1, "[]"},
+		{0, 0, AtStart, "[]"},
 	}
 
 	for _, tst := range tests {
@@ -69,9 +69,9 @@ func TestInvertSlice(t *testing.T) {
 			t.Errorf("len(invertSlice(nodes)) returns %d, should be %d, ", lGot, tst)
 		} else {
 			for i, nd := range got {
-				if nd.Get() != tst-i-1 {
+				if nd.data != tst-i-1 {
 					t.Errorf("invertSlice(nodes)[%d] is %d, should be %d",
-						i, nd.Get(), tst-i-1)
+						i, nd.data, tst-i-1)
 				}
 			}
 		}
@@ -121,7 +121,7 @@ func TestMergePaths(t *testing.T) {
 		s := "["
 		space := ""
 		for _, nd := range got {
-			s += fmt.Sprintf("%s%d", space, nd.Get())
+			s += fmt.Sprintf("%s%d", space, nd.data)
 			space = " "
 		}
 		s += "]"

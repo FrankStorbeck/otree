@@ -5,7 +5,7 @@ import (
 	"strings"
 )
 
-// Node represents internal and external nodes. Internal nodes have children,
+// Node represents internal and external/leaf nodes. Internal nodes have children,
 // external nodes don't. A node can hold data.
 type Node struct {
 	data     interface{} // data
@@ -22,7 +22,7 @@ type dummyType struct{}
 var dummy = dummyType{}
 
 // Ancestors returns the node's ancestors. The first one is it parent, the next
-// one its grandparent and so on.
+// one its grandparent and so on until the root node is found.
 func (nd *Node) Ancestors() []*Node {
 	ancestors := []*Node{}
 
@@ -44,11 +44,6 @@ func (nd *Node) Distance(node *Node) (int, error) {
 	return len(path) - 1, err
 }
 
-// Get returns the node's stored data.
-func (nd *Node) Get() interface{} {
-	return nd.data
-}
-
 // Height returns the node's height, i.e. the longest downward path to a leaf.
 func (nd *Node) Height() int {
 	var height int
@@ -62,13 +57,13 @@ func (nd *Node) Height() int {
 		}
 	}
 
-	nd.Walk(nil, f)
+	nd.Walk(f, nil)
 	return height
 }
 
-// Index returns the index of a child in the node's list of siblings. If it
+// SiblingIndex returns the index of child in the node's list of siblings. If it
 // cannot be found it returns ErrNodeNotFound.
-func (nd *Node) Index(child *Node) (int, error) {
+func (nd *Node) SiblingIndex(child *Node) (int, error) {
 	for i, sbl := range nd.siblings {
 		if sbl == child {
 			return i, nil
@@ -76,6 +71,20 @@ func (nd *Node) Index(child *Node) (int, error) {
 	}
 
 	return -1, ErrNodeNotFound
+}
+
+// Index returns the index.
+func (nd *Node) Index() (int, error) {
+	p, err := nd.Parent()
+	if err != nil {
+		return -1, err
+	}
+	return p.SiblingIndex(nd)
+}
+
+// IsLeaf tells if a node is an external/leaf node.
+func (nd *Node) IsLeaf() bool {
+	return len(nd.siblings) == 0
 }
 
 // Level returns the node's level, i.e. the zero-based counting of edges along
@@ -105,7 +114,7 @@ func (nd *Node) Link(index int, nodes ...*Node) error {
 				}
 			}
 		}
-		n.Walk(nil, f)
+		n.Walk(f, nil)
 
 		if found {
 			return ErrDuplicateNodeFound
@@ -113,14 +122,13 @@ func (nd *Node) Link(index int, nodes ...*Node) error {
 	}
 
 	// tests for duplicates in the node's tree
-	root := nd.Root()
 	f := func(node *Node, data interface{}) {
 		if !found {
 			_, found = descendants[node]
 		}
 	}
 
-	root.Walk(nil, f)
+	nd.Root().Walk(f, nil)
 	if found {
 		return ErrDuplicateNodeFound
 	}
@@ -175,7 +183,7 @@ func (nd *Node) RemoveAllSiblings() []*Node {
 // the removed sibling. Its parent is invalidated. If there is no node with the
 // given index, ErrNodeNotFound will be returned.
 func (nd *Node) RemoveSibling(index int) (*Node, error) {
-	l := len(nd.siblings)
+	l := nd.Degree()
 	if index < 0 || index >= l {
 		return nil, ErrNodeNotFound
 	}
@@ -209,8 +217,8 @@ func (nd *Node) Root() *Node {
 	return node
 }
 
-// Set stores the node's data.
-func (nd *Node) Set(data interface{}) {
+// SetData stores the node's data.
+func (nd *Node) SetData(data interface{}) {
 	nd.data = data
 }
 
@@ -241,14 +249,15 @@ func (nd *Node) String() string {
 			space = " "
 		}
 		fmt.Fprintf(&sb, "]")
+
 	}
 	return sb.String()
 }
 
 // Walk executes f for the node and all of its descendants
-func (nd *Node) Walk(data interface{}, f WalkFunc) {
+func (nd *Node) Walk(f WalkFunc, data interface{}) {
 	f(nd, data)
 	for _, sbl := range nd.siblings {
-		sbl.Walk(data, f)
+		sbl.Walk(f, data)
 	}
 }

@@ -3,19 +3,22 @@ package otree
 import (
 	"errors"
 	"fmt"
-	"math"
 	"testing"
 )
 
 func TestNew(t *testing.T) {
 	s0 := "s0"
 	nd := New(s0)
-	if got := nd.data.(string); got != s0 {
-		t.Errorf("New(%q) returns data %q, should be %q", s0, got, s0)
+	if got, ok := nd.data.(string); !ok || got != s0 {
+		if !ok {
+			t.Errorf("New(%q) doesn't hold a strinq", s0)
+		} else {
+			t.Errorf("New(%q) returns data %q, should be %q", s0, got, s0)
+		}
 	}
 }
 
-func TestSetAndGet(t *testing.T) {
+func TestSetDataAndData(t *testing.T) {
 	tests := []struct {
 		data interface{}
 	}{
@@ -28,10 +31,10 @@ func TestSetAndGet(t *testing.T) {
 	}
 	nd := New("")
 	for _, tst := range tests {
-		nd.Set(tst.data)
-		got := nd.Get()
+		nd.SetData(tst.data)
+		got := nd.data
 		if got != tst.data {
-			t.Errorf("Get() after Set(%v) returns %v, should be %v", tst.data, got, tst.data)
+			t.Errorf("Data() after SetData(%v) returns %v, should be %v", tst.data, got, tst.data)
 		}
 	}
 }
@@ -39,7 +42,7 @@ func TestSetAndGet(t *testing.T) {
 func TestParent(t *testing.T) {
 	root := New("root")
 	s0 := New("s0")
-	root.Link(-1, s0)
+	root.Link(AtStart, s0)
 
 	tests := []struct {
 		node, parent *Node
@@ -72,7 +75,7 @@ func TestParent(t *testing.T) {
 func TestString(t *testing.T) {
 	root := New("root")
 	s0 := New("s0")
-	root.Link(-1, s0)
+	root.Link(AtStart, s0)
 
 	got := root.String()
 	want := "root[s0]"
@@ -97,20 +100,19 @@ func TestLink(t *testing.T) {
 		degree int
 	}{
 		{root, 0, []*Node{s0}, nil, "root[s0]", 1},
-		{root, -1, []*Node{New("s1"), New("s2")}, nil, "root[s1 s2 s0]", 3},
+		{root, AtStart, []*Node{New("s1"), New("s2")}, nil, "root[s1 s2 s0]", 3},
 		{root, 1, []*Node{New("s3"), New("s4")}, nil, "root[s1 s3 s4 s2 s0]", 5},
-		{root, math.MaxInt, []*Node{New("s5")}, nil, "root[s1 s3 s4 s2 s0 s5]", 6},
-		{root, -1, []*Node{root}, ErrDuplicateNodeFound, "", 6},
-		{parent, math.MaxInt, []*Node{child}, nil, "parent[child]", 1},
-		{parent, math.MaxInt, []*Node{parent}, ErrDuplicateNodeFound, "", 1},
-		{parent, math.MaxInt, []*Node{child}, ErrDuplicateNodeFound, "", 1},
-		{root, math.MaxInt, []*Node{parent, parent}, ErrDuplicateNodeFound, "", 6},
-		{root, math.MaxInt, []*Node{parent}, nil, "root[s1 s3 s4 s2 s0 s5 parent[child]]", 7},
-		{root, math.MaxInt, []*Node{child}, ErrDuplicateNodeFound, "", 7},
-		{otherParent, math.MaxInt, []*Node{child}, nil, "otherParent[child]", 1},
-		{root, math.MaxInt, []*Node{otherParent}, ErrDuplicateNodeFound, "", 7},
+		{root, AtEnd, []*Node{New("s5")}, nil, "root[s1 s3 s4 s2 s0 s5]", 6},
+		{root, AtStart, []*Node{root}, ErrDuplicateNodeFound, "", 6},
+		{parent, AtEnd, []*Node{child}, nil, "parent[child]", 1},
+		{parent, AtEnd, []*Node{parent}, ErrDuplicateNodeFound, "", 1},
+		{parent, AtEnd, []*Node{child}, ErrDuplicateNodeFound, "", 1},
+		{root, AtEnd, []*Node{parent, parent}, ErrDuplicateNodeFound, "", 6},
+		{root, AtEnd, []*Node{parent}, nil, "root[s1 s3 s4 s2 s0 s5 parent[child]]", 7},
+		{root, AtEnd, []*Node{child}, ErrDuplicateNodeFound, "", 7},
+		{otherParent, AtEnd, []*Node{child}, nil, "otherParent[child]", 1},
+		{root, AtEnd, []*Node{otherParent}, ErrDuplicateNodeFound, "", 7},
 	}
-
 	for i, tst := range tests {
 		var got string
 		err := tst.root.Link(tst.where, tst.nodes...)
@@ -161,19 +163,19 @@ func TestDegree(t *testing.T) {
 func TestRoot(t *testing.T) {
 	root := New("root")
 	s0 := New("s0")
-	root.Link(-1, s0)
+	root.Link(AtStart, s0)
 	if got := s0.Root(); got != root {
 		t.Errorf("Root() returns %q, should be %q",
 			got.String(), root.String())
 	}
 }
 
-func TestIndex(t *testing.T) {
+func TestSiblingIndex(t *testing.T) {
 	root := New("root")
 	sbls := []*Node{New(0), New(1), New(2), New(3), New(4)}
-	root.Link(-1, sbls...)
+	root.Link(AtStart, sbls...)
 	for i, sbl := range sbls {
-		idx, err := root.Index(sbl)
+		idx, err := root.SiblingIndex(sbl)
 		if err != nil {
 			t.Errorf("Index(sbl) returns error %q, should be nil",
 				err.Error())
@@ -183,13 +185,30 @@ func TestIndex(t *testing.T) {
 	}
 
 	nd := New(5)
-	_, err := root.Index(nd)
+	_, err := root.SiblingIndex(nd)
 	if err == nil {
-		t.Errorf("Index(%q) returns no error, should be %q",
+		t.Errorf("SiblingIndex(%q) returns no error, should be %q",
 			nd.String(), ErrNodeNotFound.Error())
 	} else if !errors.Is(err, ErrNodeNotFound) {
-		t.Errorf("Index(nd) returns error %q, should be %q",
+		t.Errorf("SiblingIndex(nd) returns error %q, should be %q",
 			err.Error(), ErrNodeNotFound.Error())
+	}
+}
+
+func TestIndex(t *testing.T) {
+	root := New("root")
+	sbls := []*Node{New(0), New(1), New(2), New(3), New(4)}
+	root.Link(AtStart, sbls...)
+	for i, sbl := range sbls {
+		idx, err := sbl.Index()
+		if err != nil {
+			t.Errorf("Index(sbl) returns error %q, should be nil",
+				err.Error())
+		} else if i != idx {
+			t.Errorf("sbl.Index(sbl) returns %d, should be %d",
+				idx, i)
+
+		}
 	}
 }
 
@@ -292,7 +311,7 @@ func TestPathAndDistance(t *testing.T) {
 			got := "["
 			space := ""
 			for _, nd := range path {
-				got += fmt.Sprintf("%s%d", space, nd.Get())
+				got += fmt.Sprintf("%s%d", space, nd.data)
 				space = " "
 			}
 			got += "]"
@@ -340,7 +359,7 @@ func TestRemoveSibling(t *testing.T) {
 	}{
 		{0, children[0], nil},
 		{1, children[2], nil},
-		{-1, children[2], ErrNodeNotFound},
+		{AtStart, children[2], ErrNodeNotFound},
 		{1, children[2], ErrNodeNotFound},
 		{0, children[1], nil},
 	}
@@ -380,7 +399,7 @@ func TestReplaceSibling(t *testing.T) {
 		{1, []*Node{New("sb"), New("sc")}, nil, "root[s0 sb sc s2]"},
 		{0, []*Node{New("sd"), New("se")}, nil, "root[sd se sb sc s2]"},
 		{4, []*Node{New("sf")}, nil, "root[sd se sb sc sf]"},
-		{-1, []*Node{New("sg")}, ErrNodeNotFound, ""},
+		{AtStart, []*Node{New("sg")}, ErrNodeNotFound, ""},
 		{5, []*Node{New("sh")}, ErrNodeNotFound, ""},
 	}
 
@@ -402,5 +421,18 @@ func TestReplaceSibling(t *testing.T) {
 					tst.i, tst.nodes, got, tst.want)
 			}
 		}
+	}
+}
+
+func TestIsLeaf(t *testing.T) {
+	root := New("root")
+	leaf := New("s0")
+	root.Link(0, leaf)
+
+	if root.IsLeaf() {
+		t.Errorf("root.IsLeaf() returns true, should be false.")
+	}
+	if !leaf.IsLeaf() {
+		t.Errorf("leaf.IsLeaf() returns false, should be true.")
 	}
 }
