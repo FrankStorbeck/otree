@@ -404,7 +404,7 @@ func TestReplaceSibling(t *testing.T) {
 	}
 
 	for _, tst := range tests {
-		err := root.ReplaceSibling(tst.i, tst.nodes...)
+		_, err := root.ReplaceSibling(tst.i, tst.nodes...)
 		switch {
 		case err != nil && tst.err == nil:
 			t.Errorf("RemoveSibling(%d) returns an error %q, should be nil",
@@ -434,5 +434,49 @@ func TestIsLeaf(t *testing.T) {
 	}
 	if !leaf.IsLeaf() {
 		t.Errorf("leaf.IsLeaf() returns false, should be true.")
+	}
+}
+
+func TestReplace(t *testing.T) {
+	root := New("root")
+	s0 := New("s0")
+	s1 := New("s1")
+	s2 := New("s2")
+	root.Link(0, s0, s1, s2)
+
+	tests := []struct {
+		node  *Node
+		nodes []*Node
+		err   error
+		want  string
+	}{
+		{s1, []*Node{New("sa")}, nil, "root[s0 sa s2]"},
+		{s0, []*Node{New("sb"), New("sc")}, nil, "root[sb sc sa s2]"},
+		{root, []*Node{New("sd"), New("se")}, ErrCannotReplaceRootNode, ""},
+	}
+
+	for _, tst := range tests {
+		_, err := tst.node.Replace(tst.nodes...)
+		if err != nil {
+			println(err.Error())
+		}
+		switch {
+		case err != nil && tst.err == nil:
+			t.Errorf("Replace() returns an error %q, should be nil",
+				err.Error())
+		case err == nil && tst.err != nil:
+			t.Errorf("Replace() returns no error, should be %q",
+				tst.err.Error())
+		case err != nil && tst.err != nil:
+			if err != tst.err {
+				t.Errorf("Replace() returns error %q, should be %q",
+					err.Error(), tst.err.Error())
+			}
+		default:
+			if s := root.String(); s != tst.want {
+				t.Errorf("Replace() results in %q, should be %q", s, tst.want)
+			}
+		}
+
 	}
 }

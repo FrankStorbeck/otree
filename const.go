@@ -12,6 +12,7 @@ const (
 // Error codes
 var (
 	ErrCannotRemoveRootNode    = errors.New("otree: cannot remove root node")
+	ErrCannotReplaceRootNode   = errors.New("otree: cannot replace root node")
 	ErrDuplicateNodeFound      = errors.New("otree: duplicate node found")
 	ErrNodeMustNotHaveSiblings = errors.New("otree: node must not have siblings")
 	ErrNodeNotFound            = errors.New("otree: node not found")

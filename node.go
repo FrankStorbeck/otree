@@ -198,14 +198,33 @@ func (nd *Node) RemoveSibling(index int) (*Node, error) {
 	return node, nil
 }
 
-// ReplaceSibling replaces the sibling with some given index by the given nodes.
-func (nd *Node) ReplaceSibling(index int, nodes ...*Node) error {
-	if index < 0 || index >= nd.Degree() {
-		return ErrNodeNotFound
+// Replace replaces nd by nodes. It returns itself.
+func (nd *Node) Replace(nodes ...*Node) (*Node, error) {
+	p, err := nd.Parent()
+	if err != nil {
+		return nd, ErrCannotReplaceRootNode
 	}
-	nd.RemoveSibling(index)
-	nd.Link(index, nodes...)
-	return nil
+
+	i, err := nd.Index()
+	if err != nil {
+		return nd, err
+	}
+
+	return p.ReplaceSibling(i, nodes...)
+}
+
+// ReplaceSibling replaces the sibling with some given index by the given nodes.
+// It returns the replaced sibling.
+func (nd *Node) ReplaceSibling(index int, nodes ...*Node) (*Node, error) {
+	if index < 0 || index >= nd.Degree() {
+		return nd, ErrNodeNotFound
+	}
+	node, err := nd.RemoveSibling(index)
+	if err != nil {
+		return node, err
+	}
+	err = nd.Link(index, nodes...)
+	return node, err
 }
 
 // Root returns the node's root.
