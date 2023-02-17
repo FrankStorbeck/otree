@@ -1,6 +1,6 @@
 package otree
 
-// insertNodes inserts nodes2 into nodes1 before index i
+// insertNodes inserts nodes2 into the list of siblings of nodes1 before index i
 func insertNodes(nodes1, nodes2 []*Node, i int) []*Node {
 	l1 := len(nodes1)
 	l2 := len(nodes2)

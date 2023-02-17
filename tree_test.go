@@ -98,13 +98,13 @@ func TestRemoveNodeAndRemoveSiblings(t *testing.T) {
 		err   error
 		want  string
 	}{
-		{children[1], -1, nil, "root[10 12]"},
-		{children[1], -1, ErrNodeNotFound, ""},
-		{root, -1, ErrCannotRemoveRootNode, ""},
-		{New("-1"), -1, ErrNodeNotFound, ""},
-		{nil, -1, ErrNodeNotFound, ""},
-		{nil, 1, nil, "root[10]"},
-		{nil, -1, ErrNodeNotFound, ""},
+		{children[1], AtStart, nil, "<root>[<10>,<12>]"},
+		{children[1], AtStart, ErrNodeNotFound, ""},
+		{root, AtStart, ErrCannotRemoveRootNode, ""},
+		{New("-1"), AtStart, ErrNodeNotFound, ""},
+		{nil, AtStart, ErrNodeNotFound, ""},
+		{nil, 1, nil, "<root>[<10>]"},
+		{nil, AtStart, ErrNodeNotFound, ""},
 		{nil, 1, ErrNodeNotFound, ""},
 	}
 
@@ -118,20 +118,20 @@ func TestRemoveNodeAndRemoveSiblings(t *testing.T) {
 		switch {
 		case err != nil && tst.err == nil:
 			t.Errorf("RemoveNode(%v) returns an error %q, should be nil",
-				tst.node.Get(), err.Error())
+				tst.node.Data, err.Error())
 
 		case err == nil && tst.err != nil:
 			t.Errorf("RemoveNode(%v) returns no error, should be %q",
-				tst.node.Get(), tst.err.Error())
+				tst.node.Data, tst.err.Error())
 
 		case err != nil && tst.err != nil && err != tst.err:
 			t.Errorf("RemoveNode(%v) returns error %q, should be %q",
-				tst.node.Get(), err.Error(), tst.err.Error())
+				tst.node.Data, err.Error(), tst.err.Error())
 
 		case err == nil && tst.err == nil:
 			if got := root.String(); got != tst.want {
 				t.Errorf("RemoveNode(%v) generates %q, should be %q",
-					tst.node.Get(), got, tst.want)
+					tst.node.Data, got, tst.want)
 			}
 		}
 	}
@@ -146,5 +146,5 @@ func TestRemoveNodeAndRemoveSiblings(t *testing.T) {
 // 	level2 := []*Node{New(20), New(21)}
 // 	level1[0].Link(0, level2...)
 //
-// 	fmt.Println(root.String()) // output: root[10[20 21] 11 12 13]
+// 	fmt.Println(root.String()) // output: <root>[<10>[<20>,<21>],<11>,<12>,<13>]
 // }
