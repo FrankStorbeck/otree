@@ -220,9 +220,6 @@ func (nd *Node) Replace(nodes ...*Node) (*Node, error) {
 // ReplaceSibling replaces the child in the list of sibling with the provided
 // index by nodes. It returns the replaced sibling with an invalidated parent.
 func (nd *Node) ReplaceSibling(index int, nodes ...*Node) (*Node, error) {
-	if index < 0 || index >= nd.Degree() {
-		return nd, ErrNodeNotFound
-	}
 	node, err := nd.RemoveSibling(index)
 	if err != nil {
 		return node, err

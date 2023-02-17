@@ -177,10 +177,10 @@ func TestSiblingIndex(t *testing.T) {
 	for i, sbl := range sbls {
 		idx, err := root.SiblingIndex(sbl)
 		if err != nil {
-			t.Errorf("Index(sbl) returns error %q, should be nil",
+			t.Errorf("SiblingIndex(sbl) returns error %q, should be nil",
 				err.Error())
 		} else if i != idx {
-			t.Errorf("Index(sbl) returns %d, should be %d", idx, i)
+			t.Errorf("SiblingIndex(sbl) returns %d, should be %d", idx, i)
 		}
 	}
 
@@ -195,6 +195,26 @@ func TestSiblingIndex(t *testing.T) {
 	}
 }
 
+func TestSibling(t *testing.T) {
+	root := New("root")
+	sbls := []*Node{New(0), New(1), New(2), New(3), New(4)}
+	root.Link(AtStart, sbls...)
+
+	for i, sbl := range root.Siblings() {
+		nd, err := root.Sibling(i)
+		if err != nil {
+			t.Errorf("root.Sibling(%d) returns error %q, should be nil", i, err.Error())
+		} else if nd != sbl {
+			t.Errorf("root.Sibling(%d) returns %q, should be %q", i, nd.String(), sbl.String())
+		}
+	}
+
+	_, err := root.Sibling(5)
+	if err == nil {
+		t.Errorf("root.Sibling(5) returns no error, should be %q", ErrNodeNotFound)
+	}
+}
+
 func TestIndex(t *testing.T) {
 	root := New("root")
 	sbls := []*Node{New(0), New(1), New(2), New(3), New(4)}
@@ -202,13 +222,23 @@ func TestIndex(t *testing.T) {
 	for i, sbl := range sbls {
 		idx, err := sbl.Index()
 		if err != nil {
-			t.Errorf("Index(sbl) returns error %q, should be nil",
-				err.Error())
+			t.Errorf("%q.Index() returns error %q, should be nil",
+				sbl.String(), err.Error())
 		} else if i != idx {
-			t.Errorf("sbl.Index(sbl) returns %d, should be %d",
-				idx, i)
+			t.Errorf("%q.Index() returns %d, should be %d",
+				sbl.String(), idx, i)
 
 		}
+	}
+
+	nd := New(5)
+	_, err := nd.Index()
+	if err == nil {
+		t.Errorf("%q.Index() returns no error, should be %q",
+			nd.String(), ErrNodeNotFound.Error())
+	} else if !errors.Is(err, ErrParentMissing) {
+		t.Errorf("%q.Index() returns error %q, should be %q",
+			nd.String(), err.Error(), ErrParentMissing.Error())
 	}
 }
 
