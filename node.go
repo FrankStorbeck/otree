@@ -167,7 +167,7 @@ func (nd *Node) Path(node *Node) ([]*Node, error) {
 // RemoveAllSiblings removes all nd's siblings. It returns a slice with
 // the removed siblings. Their parents are invalidated.
 func (nd *Node) RemoveAllSiblings() []*Node {
-	if nd.siblings == nil {
+	if nd.IsLeaf() {
 		return []*Node{}
 	}
 	sblngs := nd.siblings
@@ -185,7 +185,7 @@ func (nd *Node) RemoveAllSiblings() []*Node {
 // If there is no node with the given index, ErrNodeNotFound will be returned.
 func (nd *Node) RemoveSibling(index int) (*Node, error) {
 	l := nd.Degree()
-	if nd.siblings == nil || index < 0 || index >= l {
+	if nd.IsLeaf() || index < 0 || index >= l {
 		return nil, ErrNodeNotFound
 	}
 
@@ -238,7 +238,7 @@ func (nd *Node) Root() *Node {
 // Sibling returns nd's child in the list of siblings with the provided
 // index.
 func (nd *Node) Sibling(index int) (*Node, error) {
-	if nd.siblings == nil || index < 0 || index >= len(nd.siblings) {
+	if nd.IsLeaf() || index < 0 || index >= len(nd.siblings) {
 		return nil, ErrNodeNotFound
 	}
 	return nd.siblings[index], nil
@@ -246,7 +246,7 @@ func (nd *Node) Sibling(index int) (*Node, error) {
 
 // Siblings returns all the siblings
 func (nd *Node) Siblings() []*Node {
-	if nd.siblings == nil {
+	if nd.IsLeaf() {
 		return []*Node{}
 	}
 	return nd.siblings
