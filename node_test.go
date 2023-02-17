@@ -368,7 +368,7 @@ func TestRemoveSibling(t *testing.T) {
 	}{
 		{0, children[0], nil},
 		{1, children[2], nil},
-		{AtStart, children[2], ErrNodeNotFound},
+		{-1, children[2], ErrNodeNotFound},
 		{1, children[2], ErrNodeNotFound},
 		{0, children[1], nil},
 	}

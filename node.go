@@ -36,7 +36,11 @@ func (nd *Node) Ancestors() []*Node {
 
 // Degree returns nd's degree, i.e. the number of siblings.
 func (nd *Node) Degree() int {
-	return len(nd.siblings)
+	d := 0
+	if nd.siblings != nil {
+		d = len(nd.siblings)
+	}
+	return d
 }
 
 // Distance returns nd's distance (the number of edges) to node. If nd
@@ -53,7 +57,7 @@ func (nd *Node) Height() int {
 	l := nd.Level()
 
 	f := func(node *Node, data interface{}) {
-		if len(node.siblings) == 0 {
+		if node.siblings == nil || len(node.siblings) == 0 {
 			if h := node.Level() - l; h > height {
 				height = h
 			}
@@ -77,7 +81,7 @@ func (nd *Node) Index() (int, error) {
 
 // IsLeaf tells if nd is an external/leaf node.
 func (nd *Node) IsLeaf() bool {
-	return len(nd.siblings) == 0
+	return nd.siblings == nil || len(nd.siblings) == 0
 }
 
 // Level returns nd's level, i.e. the zero-based counting of edges along
@@ -129,6 +133,9 @@ func (nd *Node) Link(index int, nodes ...*Node) error {
 		n.parent = nd
 	}
 
+	if nd.siblings == nil {
+		nd.siblings = make([]*Node, 0)
+	}
 	nd.siblings = insertNodes(nd.siblings, nodes, index)
 
 	return nil
@@ -136,7 +143,7 @@ func (nd *Node) Link(index int, nodes ...*Node) error {
 
 // New returns a new node with some data stored into it.
 func New(data interface{}) *Node {
-	return &Node{Data: data, siblings: make([]*Node, 0)}
+	return &Node{Data: data}
 }
 
 // Parent returns nd's parent. When the parent doesn't exist ErrParentMissing
@@ -160,8 +167,11 @@ func (nd *Node) Path(node *Node) ([]*Node, error) {
 // RemoveAllSiblings removes all nd's siblings. It returns a slice with
 // the removed siblings. Their parents are invalidated.
 func (nd *Node) RemoveAllSiblings() []*Node {
+	if nd.siblings == nil {
+		return []*Node{}
+	}
 	sblngs := nd.siblings
-	nd.siblings = []*Node{}
+	nd.siblings = nil
 
 	for _, n := range sblngs {
 		n.parent = nil
@@ -175,7 +185,7 @@ func (nd *Node) RemoveAllSiblings() []*Node {
 // If there is no node with the given index, ErrNodeNotFound will be returned.
 func (nd *Node) RemoveSibling(index int) (*Node, error) {
 	l := nd.Degree()
-	if index < 0 || index >= l {
+	if nd.siblings == nil || index < 0 || index >= l {
 		return nil, ErrNodeNotFound
 	}
 
@@ -190,7 +200,7 @@ func (nd *Node) RemoveSibling(index int) (*Node, error) {
 }
 
 // Replace replaces nd by nodes. It returns itself with an invalidated
-// parent. if nd is the root node ErrCannotReplaceRootNode will be returned.
+// parent. If nd is the root node ErrCannotReplaceRootNode will be returned.
 func (nd *Node) Replace(nodes ...*Node) (*Node, error) {
 	p, err := nd.Parent()
 	if err != nil {
@@ -205,7 +215,7 @@ func (nd *Node) Replace(nodes ...*Node) (*Node, error) {
 	return p.ReplaceSibling(i, nodes...)
 }
 
-// ReplaceSibling replaces the child in the list of sibling with the provided
+// ReplaceSibling replaces the child in the list of siblings with the provided
 // index by nodes. It returns the replaced sibling with an invalidated parent.
 func (nd *Node) ReplaceSibling(index int, nodes ...*Node) (*Node, error) {
 	node, err := nd.RemoveSibling(index)
@@ -228,7 +238,7 @@ func (nd *Node) Root() *Node {
 // Sibling returns nd's child in the list of siblings with the provided
 // index.
 func (nd *Node) Sibling(index int) (*Node, error) {
-	if index < 0 || index >= len(nd.siblings) {
+	if nd.siblings == nil || index < 0 || index >= len(nd.siblings) {
 		return nil, ErrNodeNotFound
 	}
 	return nd.siblings[index], nil
@@ -236,15 +246,20 @@ func (nd *Node) Sibling(index int) (*Node, error) {
 
 // Siblings returns all the siblings
 func (nd *Node) Siblings() []*Node {
+	if nd.siblings == nil {
+		return []*Node{}
+	}
 	return nd.siblings
 }
 
 // SiblingIndex returns the index of child in nd's list of siblings. If it
 // cannot be found it returns ErrNodeNotFound.
 func (nd *Node) SiblingIndex(child *Node) (int, error) {
-	for i, sbl := range nd.siblings {
-		if sbl == child {
-			return i, nil
+	if nd.siblings != nil {
+		for i, sbl := range nd.siblings {
+			if sbl == child {
+				return i, nil
+			}
 		}
 	}
 
@@ -257,7 +272,7 @@ func (nd *Node) String() string {
 	sb := strings.Builder{}
 
 	fmt.Fprintf(&sb, "%v", nd.Data)
-	if len(nd.siblings) > 0 {
+	if nd.siblings != nil && len(nd.siblings) > 0 {
 		fmt.Fprintf(&sb, "[")
 		space := ""
 		for _, sbl := range nd.siblings {
@@ -273,7 +288,9 @@ func (nd *Node) String() string {
 // Walk executes f for nd and all of its descendants.
 func (nd *Node) Walk(f WalkFunc, data interface{}) {
 	f(nd, data)
-	for _, sbl := range nd.siblings {
-		sbl.Walk(f, data)
+	if nd.siblings != nil {
+		for _, sbl := range nd.siblings {
+			sbl.Walk(f, data)
+		}
 	}
 }
