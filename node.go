@@ -109,32 +109,29 @@ func (nd *Node) Level() int {
 // The constants AtStart and AtEnd can be used to link nodes at the start or
 // end of the list of siblings.
 func (nd *Node) Link(index int, nodes ...*Node) error {
-	descendants := make(map[*Node]dummyType)
-	var found bool
+	newNodes := make(map[*Node]dummyType)
+	found, collectNodes := false, true
+
+	// f is a WalkFunc to test if there are any duplicate nodes in a tree
+	f := func(node *Node, data interface{}) {
+		if !found {
+			_, found = newNodes[node]
+			if !found && collectNodes {
+				newNodes[node] = dummy
+			}
+		}
+	}
 
 	// test for duplicates in the provided nodes
 	for _, n := range nodes {
-		f := func(node *Node, data interface{}) {
-			if !found {
-				if _, found = descendants[node]; !found {
-					descendants[node] = dummy
-				}
-			}
-		}
 		n.Walk(f, nil)
-
 		if found {
 			return ErrDuplicateNodeFound
 		}
 	}
 
 	// tests for duplicates in the node's tree
-	f := func(node *Node, data interface{}) {
-		if !found {
-			_, found = descendants[node]
-		}
-	}
-
+	collectNodes = false
 	nd.Root().Walk(f, nil)
 	if found {
 		return ErrDuplicateNodeFound
@@ -263,7 +260,7 @@ func (nd *Node) Siblings() []*Node {
 }
 
 // String creates a string that displays nd's content and recursivly the
-// contents of all of its descendants.
+// contents of all of its newNodes.
 func (nd *Node) String() string {
 	sb := strings.Builder{}
 
@@ -281,7 +278,7 @@ func (nd *Node) String() string {
 	return sb.String()
 }
 
-// Walk executes f for nd and all of its descendants.
+// Walk executes f for nd and all of its newNodes.
 func (nd *Node) Walk(f WalkFunc, data interface{}) {
 	f(nd, data)
 	for _, sbl := range nd.siblings {
