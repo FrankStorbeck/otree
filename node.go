@@ -10,7 +10,7 @@ import (
 // siblings. All nodes other than the root node hold one parent node.
 // Internal nodes have children, external nodes don't.
 type Node struct {
-	data     interface{} // data
+	Data     interface{} // stored data
 	parent   *Node       // parent node
 	siblings []*Node     // sibling nodes
 }
@@ -62,18 +62,6 @@ func (nd *Node) Height() int {
 
 	nd.Walk(f, nil)
 	return height
-}
-
-// SiblingIndex returns the index of child in nd's list of siblings. If it
-// cannot be found it returns ErrNodeNotFound.
-func (nd *Node) SiblingIndex(child *Node) (int, error) {
-	for i, sbl := range nd.siblings {
-		if sbl == child {
-			return i, nil
-		}
-	}
-
-	return -1, ErrNodeNotFound
 }
 
 // Index returns the index in the list of siblings to which nd belongs.
@@ -148,7 +136,7 @@ func (nd *Node) Link(index int, nodes ...*Node) error {
 
 // New returns a new node with some data stored into it.
 func New(data interface{}) *Node {
-	return &Node{data: data, siblings: make([]*Node, 0)}
+	return &Node{Data: data, siblings: make([]*Node, 0)}
 }
 
 // Parent returns nd's parent. When the parent doesn't exist ErrParentMissing
@@ -237,11 +225,6 @@ func (nd *Node) Root() *Node {
 	return node
 }
 
-// SetData stores the node's data.
-func (nd *Node) SetData(data interface{}) {
-	nd.data = data
-}
-
 // Sibling returns nd's child in the list of siblings with the provided
 // index.
 func (nd *Node) Sibling(index int) (*Node, error) {
@@ -256,12 +239,24 @@ func (nd *Node) Siblings() []*Node {
 	return nd.siblings
 }
 
+// SiblingIndex returns the index of child in nd's list of siblings. If it
+// cannot be found it returns ErrNodeNotFound.
+func (nd *Node) SiblingIndex(child *Node) (int, error) {
+	for i, sbl := range nd.siblings {
+		if sbl == child {
+			return i, nil
+		}
+	}
+
+	return -1, ErrNodeNotFound
+}
+
 // String creates a string that displays nd's content and recursivly the
 // contents of all of its newNodes.
 func (nd *Node) String() string {
 	sb := strings.Builder{}
 
-	fmt.Fprintf(&sb, "%v", nd.data)
+	fmt.Fprintf(&sb, "%v", nd.Data)
 	if len(nd.siblings) > 0 {
 		fmt.Fprintf(&sb, "[")
 		space := ""
@@ -275,7 +270,7 @@ func (nd *Node) String() string {
 	return sb.String()
 }
 
-// Walk executes f for nd and all of its newNodes.
+// Walk executes f for nd and all of its descendants.
 func (nd *Node) Walk(f WalkFunc, data interface{}) {
 	f(nd, data)
 	for _, sbl := range nd.siblings {

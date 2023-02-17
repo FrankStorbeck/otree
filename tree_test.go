@@ -118,20 +118,20 @@ func TestRemoveNodeAndRemoveSiblings(t *testing.T) {
 		switch {
 		case err != nil && tst.err == nil:
 			t.Errorf("RemoveNode(%v) returns an error %q, should be nil",
-				tst.node.data, err.Error())
+				tst.node.Data, err.Error())
 
 		case err == nil && tst.err != nil:
 			t.Errorf("RemoveNode(%v) returns no error, should be %q",
-				tst.node.data, tst.err.Error())
+				tst.node.Data, tst.err.Error())
 
 		case err != nil && tst.err != nil && err != tst.err:
 			t.Errorf("RemoveNode(%v) returns error %q, should be %q",
-				tst.node.data, err.Error(), tst.err.Error())
+				tst.node.Data, err.Error(), tst.err.Error())
 
 		case err == nil && tst.err == nil:
 			if got := root.String(); got != tst.want {
 				t.Errorf("RemoveNode(%v) generates %q, should be %q",
-					tst.node.data, got, tst.want)
+					tst.node.Data, got, tst.want)
 			}
 		}
 	}

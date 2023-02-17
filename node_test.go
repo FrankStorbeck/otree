@@ -9,32 +9,11 @@ import (
 func TestNew(t *testing.T) {
 	s0 := "s0"
 	nd := New(s0)
-	if got, ok := nd.data.(string); !ok || got != s0 {
+	if got, ok := nd.Data.(string); !ok || got != s0 {
 		if !ok {
 			t.Errorf("New(%q) doesn't hold a strinq", s0)
 		} else {
 			t.Errorf("New(%q) returns data %q, should be %q", s0, got, s0)
-		}
-	}
-}
-
-func TestSetDataAndData(t *testing.T) {
-	tests := []struct {
-		data interface{}
-	}{
-		{"s"},
-		{8},
-		{struct {
-			i int
-			f float32
-		}{2, 3.4}},
-	}
-	nd := New("")
-	for _, tst := range tests {
-		nd.SetData(tst.data)
-		got := nd.data
-		if got != tst.data {
-			t.Errorf("Data() after SetData(%v) returns %v, should be %v", tst.data, got, tst.data)
 		}
 	}
 }
@@ -66,7 +45,7 @@ func TestParent(t *testing.T) {
 		case err == nil && tst.err == nil:
 			if got != tst.parent {
 				t.Errorf("%d: LinkChildren() returns %q, should be %q",
-					i, got.data, tst.parent.data)
+					i, got.Data, tst.parent.Data)
 			}
 		}
 	}
@@ -341,7 +320,7 @@ func TestPathAndDistance(t *testing.T) {
 			got := "["
 			space := ""
 			for _, nd := range path {
-				got += fmt.Sprintf("%s%d", space, nd.data)
+				got += fmt.Sprintf("%s%d", space, nd.Data)
 				space = " "
 			}
 			got += "]"

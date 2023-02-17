@@ -44,7 +44,7 @@ func TestInsert(t *testing.T) {
 		got := "["
 		sep := ""
 		for _, nd := range r {
-			got += sep + fmt.Sprintf("%d", nd.data.(int))
+			got += sep + fmt.Sprintf("%d", nd.Data.(int))
 			sep = " "
 		}
 		got += "]"
@@ -69,9 +69,9 @@ func TestInvertSlice(t *testing.T) {
 			t.Errorf("len(invertSlice(nodes)) returns %d, should be %d, ", lGot, tst)
 		} else {
 			for i, nd := range got {
-				if nd.data != tst-i-1 {
+				if nd.Data != tst-i-1 {
 					t.Errorf("invertSlice(nodes)[%d] is %d, should be %d",
-						i, nd.data, tst-i-1)
+						i, nd.Data, tst-i-1)
 				}
 			}
 		}
@@ -121,7 +121,7 @@ func TestMergePaths(t *testing.T) {
 		s := "["
 		space := ""
 		for _, nd := range got {
-			s += fmt.Sprintf("%s%d", space, nd.data)
+			s += fmt.Sprintf("%s%d", space, nd.Data)
 			space = " "
 		}
 		s += "]"
