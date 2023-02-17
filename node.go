@@ -271,13 +271,13 @@ func (nd *Node) SiblingIndex(child *Node) (int, error) {
 func (nd *Node) String() string {
 	sb := strings.Builder{}
 
-	fmt.Fprintf(&sb, "%v", nd.Data)
+	fmt.Fprintf(&sb, "<%v>", nd.Data)
 	if nd.siblings != nil && len(nd.siblings) > 0 {
 		fmt.Fprintf(&sb, "[")
-		space := ""
+		sep := ""
 		for _, sbl := range nd.siblings {
-			fmt.Fprintf(&sb, "%s%s", space, sbl.String())
-			space = " "
+			fmt.Fprintf(&sb, "%s%s", sep, sbl.String())
+			sep = ","
 		}
 		fmt.Fprintf(&sb, "]")
 

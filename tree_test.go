@@ -98,12 +98,12 @@ func TestRemoveNodeAndRemoveSiblings(t *testing.T) {
 		err   error
 		want  string
 	}{
-		{children[1], AtStart, nil, "root[10 12]"},
+		{children[1], AtStart, nil, "<root>[<10>,<12>]"},
 		{children[1], AtStart, ErrNodeNotFound, ""},
 		{root, AtStart, ErrCannotRemoveRootNode, ""},
 		{New("-1"), AtStart, ErrNodeNotFound, ""},
 		{nil, AtStart, ErrNodeNotFound, ""},
-		{nil, 1, nil, "root[10]"},
+		{nil, 1, nil, "<root>[<10>]"},
 		{nil, AtStart, ErrNodeNotFound, ""},
 		{nil, 1, ErrNodeNotFound, ""},
 	}
@@ -146,5 +146,5 @@ func TestRemoveNodeAndRemoveSiblings(t *testing.T) {
 // 	level2 := []*Node{New(20), New(21)}
 // 	level1[0].Link(0, level2...)
 //
-// 	fmt.Println(root.String()) // output: root[10[20 21] 11 12 13]
+// 	fmt.Println(root.String()) // output: <root>[<10>[<20>,<21>],<11>,<12>,<13>]
 // }
