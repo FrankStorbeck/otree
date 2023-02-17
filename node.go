@@ -5,8 +5,10 @@ import (
 	"strings"
 )
 
-// Node represents internal and external/leaf nodes. Internal nodes have children,
-// external nodes don't. A node can hold data.
+// Node represents internal and external/leaf nodes. It can hold links to other
+// nodes which are called its children. These children are named the node's
+// siblings. All nodes other than the root node hold one parent node.
+// Internal nodes have children, external nodes don't.
 type Node struct {
 	data     interface{} // data
 	parent   *Node       // parent node
@@ -14,8 +16,8 @@ type Node struct {
 }
 
 // WalkFunc is a function type that can be performed on all nodes in a
-// (sub)tree starting at root.
-type WalkFunc func(root *Node, data interface{})
+// (sub)tree. Walk() sets nd to the node for wich the function must be called.
+type WalkFunc func(nd *Node, data interface{})
 
 type dummyType struct{}
 
@@ -32,19 +34,20 @@ func (nd *Node) Ancestors() []*Node {
 	return ancestors
 }
 
-// Degree returns the node's degree, i.e. the number of siblings.
+// Degree returns nd's degree, i.e. the number of siblings.
 func (nd *Node) Degree() int {
 	return len(nd.siblings)
 }
 
-// Distance returns the distance to an end node. If the nodes are not in the
-// same tree ErrNodesNotInSameTree will be returned.
+// Distance returns nd's distance (the number of edges) to node. If nd
+// and node are not in the same tree ErrNodesNotInSameTree will be
+// returned.
 func (nd *Node) Distance(node *Node) (int, error) {
 	path, err := nd.Path(node)
 	return len(path) - 1, err
 }
 
-// Height returns the node's height, i.e. the longest downward path to a leaf.
+// Height returns nd's height, i.e. the longest downward path to a leaf.
 func (nd *Node) Height() int {
 	var height int
 	l := nd.Level()
@@ -61,7 +64,7 @@ func (nd *Node) Height() int {
 	return height
 }
 
-// SiblingIndex returns the index of child in the node's list of siblings. If it
+// SiblingIndex returns the index of child in nd's list of siblings. If it
 // cannot be found it returns ErrNodeNotFound.
 func (nd *Node) SiblingIndex(child *Node) (int, error) {
 	for i, sbl := range nd.siblings {
@@ -73,7 +76,9 @@ func (nd *Node) SiblingIndex(child *Node) (int, error) {
 	return -1, ErrNodeNotFound
 }
 
-// Index returns the index.
+// Index returns the index in the list of siblings to which nd belongs.
+// Finding the index of a root node results in ErrParentMissing to be
+// returned.
 func (nd *Node) Index() (int, error) {
 	p, err := nd.Parent()
 	if err != nil {
@@ -82,12 +87,12 @@ func (nd *Node) Index() (int, error) {
 	return p.SiblingIndex(nd)
 }
 
-// IsLeaf tells if a node is an external/leaf node.
+// IsLeaf tells if nd is an external/leaf node.
 func (nd *Node) IsLeaf() bool {
 	return len(nd.siblings) == 0
 }
 
-// Level returns the node's level, i.e. the zero-based counting of edges along
+// Level returns nd's level, i.e. the zero-based counting of edges along
 // the path to the root node. It is the same as its depth.
 func (nd *Node) Level() int {
 	n := 0
@@ -97,10 +102,12 @@ func (nd *Node) Level() int {
 	return n
 }
 
-// Link links a set of nodes. They will be inserted just before the node's
-// sibling with the provide index. If the index is negative i will be set to
-// zero. If the index is larger than the index of the node's last sibling, the
+// Link links nodes to nd. They will be inserted just before the
+// child in the list of siblings with index. If index is negative it will be
+// set to zero. If the index is larger than the index of the nd's last sibling
 // nodes will be appended to the the node's siblings.
+// The constants AtStart and AtEnd can be used to link nodes at the start or
+// end of the list of siblings.
 func (nd *Node) Link(index int, nodes ...*Node) error {
 	descendants := make(map[*Node]dummyType)
 	var found bool
@@ -147,8 +154,8 @@ func New(data interface{}) *Node {
 	return &Node{data: data, siblings: make([]*Node, 0)}
 }
 
-// Parent returns the node's parent. When the parent doesn't exist
-// ErrParentMissing will be returned.
+// Parent returns nd's parent. When the parent doesn't exist ErrParentMissing
+// will be returned.
 func (nd *Node) Parent() (*Node, error) {
 	parent := nd.parent
 	if parent == nil {
@@ -157,16 +164,15 @@ func (nd *Node) Parent() (*Node, error) {
 	return parent, nil
 }
 
-// Path returns the path to a node. The node and the end node are included into
-// the result. If the nodes are not in the same tree, ErrNodesNotInSameTree will
-// be returned.
+// Path returns nd's path to node. nd and node are included into the result.
+// If the nodes are not in the same tree, ErrNodesNotInSameTree will be returned.
 func (nd *Node) Path(node *Node) ([]*Node, error) {
 	up := append([]*Node{nd}, nd.Ancestors()...)
 	down := append([]*Node{node}, node.Ancestors()...)
 	return mergePaths(up, down)
 }
 
-// RemoveAllSiblings removes all the node's siblings. It returns a slice with
+// RemoveAllSiblings removes all nd's siblings. It returns a slice with
 // the removed siblings. Their parents are invalidated.
 func (nd *Node) RemoveAllSiblings() []*Node {
 	sblngs := nd.siblings
@@ -179,9 +185,9 @@ func (nd *Node) RemoveAllSiblings() []*Node {
 	return sblngs
 }
 
-// RemoveSibling removes the node's sibling with the provided index. It returns
-// the removed sibling. Its parent is invalidated. If there is no node with the
-// given index, ErrNodeNotFound will be returned.
+// RemoveSibling removes the nd's child with the provided index in the list
+// of siblings. It returns the removed sibling. Its parents is invalidated.
+// If there is no node with the given index, ErrNodeNotFound will be returned.
 func (nd *Node) RemoveSibling(index int) (*Node, error) {
 	l := nd.Degree()
 	if index < 0 || index >= l {
@@ -198,7 +204,8 @@ func (nd *Node) RemoveSibling(index int) (*Node, error) {
 	return node, nil
 }
 
-// Replace replaces nd by nodes. It returns itself.
+// Replace replaces nd by nodes. It returns itself with an invalidated
+// parent. if nd is the root node ErrCannotReplaceRootNode will be returned.
 func (nd *Node) Replace(nodes ...*Node) (*Node, error) {
 	p, err := nd.Parent()
 	if err != nil {
@@ -213,8 +220,8 @@ func (nd *Node) Replace(nodes ...*Node) (*Node, error) {
 	return p.ReplaceSibling(i, nodes...)
 }
 
-// ReplaceSibling replaces the sibling with some given index by the given nodes.
-// It returns the replaced sibling.
+// ReplaceSibling replaces the child in the list of sibling with the provided
+// index by nodes. It returns the replaced sibling with an invalidated parent.
 func (nd *Node) ReplaceSibling(index int, nodes ...*Node) (*Node, error) {
 	if index < 0 || index >= nd.Degree() {
 		return nd, ErrNodeNotFound
@@ -227,7 +234,7 @@ func (nd *Node) ReplaceSibling(index int, nodes ...*Node) (*Node, error) {
 	return node, err
 }
 
-// Root returns the node's root.
+// Root returns the root of the tree to which nd belongs.
 func (nd *Node) Root() *Node {
 	node := nd
 	for node.parent != nil {
@@ -241,7 +248,8 @@ func (nd *Node) SetData(data interface{}) {
 	nd.data = data
 }
 
-// Sibling returns the sibling for the provided index
+// Sibling returns nd's child in the list of siblings with the provided
+// index.
 func (nd *Node) Sibling(index int) (*Node, error) {
 	if index < 0 || index >= len(nd.siblings) {
 		return nil, ErrNodeNotFound
@@ -254,7 +262,7 @@ func (nd *Node) Siblings() []*Node {
 	return nd.siblings
 }
 
-// String creates a string that displays the node's content and recursivly the
+// String creates a string that displays nd's content and recursivly the
 // contents of all of its descendants.
 func (nd *Node) String() string {
 	sb := strings.Builder{}
@@ -273,7 +281,7 @@ func (nd *Node) String() string {
 	return sb.String()
 }
 
-// Walk executes f for the node and all of its descendants
+// Walk executes f for nd and all of its descendants.
 func (nd *Node) Walk(f WalkFunc, data interface{}) {
 	f(nd, data)
 	for _, sbl := range nd.siblings {
