@@ -9,7 +9,7 @@ func Breadth(node *Node, sub bool) int {
 	breadth := 0
 
 	f := func(node *Node, data interface{}) {
-		if node.Degree() == 0 {
+		if node.IsLeaf() {
 			breadth++
 		}
 	}
@@ -38,35 +38,6 @@ func Degree(node *Node, sub bool) int {
 // is true it returns the height of the subtree starting at node.
 func Height(node *Node, sub bool) int {
 	return selectRoot(node, sub).Height()
-}
-
-// Remove removes a node from the (sub)tree rooted at root and all its
-// descendants. If the node cannot be found ErrNodeNotFound will be returned.
-// If node equals to root ErrCannotRemoveRootNode will be returned.
-func Remove(root, node *Node) error {
-	if node == nil {
-		return ErrNodeNotFound
-	}
-
-	if node == root {
-		return ErrCannotRemoveRootNode
-	}
-
-	var parent *Node
-	f := func(n *Node, data interface{}) {
-		if parent == nil && n == node {
-			parent = n.parent
-		}
-	}
-	root.Walk(f, nil)
-	if parent == nil {
-		return ErrNodeNotFound
-	}
-
-	i, _ := parent.SiblingIndex(node) // parent always has the sibling
-	_, err := parent.RemoveSibling(i)
-
-	return err
 }
 
 // Size returns the size (i.e the number of nodes) of the tree starting at the

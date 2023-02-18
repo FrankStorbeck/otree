@@ -82,61 +82,6 @@ func TestTreeHeight(t *testing.T) {
 	}
 }
 
-func TestRemoveNodeAndRemoveSiblings(t *testing.T) {
-	root := New("root")
-	children := []*Node{New(10), New(11), New(12)}
-	grandChildren := []*Node{New(20), New(21), New(22), New(23)}
-	greatGrandChildren := []*Node{New(30), New(31)}
-
-	root.Link(0, children...)
-	children[1].Link(0, grandChildren...)
-	grandChildren[2].Link(0, greatGrandChildren...)
-
-	tests := []struct {
-		node  *Node
-		index int
-		err   error
-		want  string
-	}{
-		{children[1], AtStart, nil, "<root>[<10>,<12>]"},
-		{children[1], AtStart, ErrNodeNotFound, ""},
-		{root, AtStart, ErrCannotRemoveRootNode, ""},
-		{New("-1"), AtStart, ErrNodeNotFound, ""},
-		{nil, AtStart, ErrNodeNotFound, ""},
-		{nil, 1, nil, "<root>[<10>]"},
-		{nil, AtStart, ErrNodeNotFound, ""},
-		{nil, 1, ErrNodeNotFound, ""},
-	}
-
-	for _, tst := range tests {
-		var err error
-		if tst.index < 0 {
-			err = Remove(root, tst.node)
-		} else {
-			tst.node, err = root.RemoveSibling(tst.index)
-		}
-		switch {
-		case err != nil && tst.err == nil:
-			t.Errorf("RemoveNode(%v) returns an error %q, should be nil",
-				tst.node.Data, err.Error())
-
-		case err == nil && tst.err != nil:
-			t.Errorf("RemoveNode(%v) returns no error, should be %q",
-				tst.node.Data, tst.err.Error())
-
-		case err != nil && tst.err != nil && err != tst.err:
-			t.Errorf("RemoveNode(%v) returns error %q, should be %q",
-				tst.node.Data, err.Error(), tst.err.Error())
-
-		case err == nil && tst.err == nil:
-			if got := root.String(); got != tst.want {
-				t.Errorf("RemoveNode(%v) generates %q, should be %q",
-					tst.node.Data, got, tst.want)
-			}
-		}
-	}
-}
-
 // func TestMain(t *testing.T) {
 // 	root := New("root")
 //

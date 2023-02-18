@@ -164,6 +164,20 @@ func (nd *Node) Path(node *Node) ([]*Node, error) {
 	return mergePaths(up, down)
 }
 
+// Remove removes nd from the tree. It returns nd with an invalidated
+// parent. The root node cannot bee removed.
+func (nd *Node) Remove() (*Node, error) {
+	p := nd.parent
+	if p == nil {
+		return nd, ErrCannotRemoveRootNode
+	}
+	i, err := nd.Index()
+	if err != nil {
+		return nd, err
+	}
+	return p.RemoveSibling(i)
+}
+
 // RemoveAllSiblings removes all nd's siblings. It returns a slice with
 // the removed siblings. Their parents are invalidated.
 func (nd *Node) RemoveAllSiblings() []*Node {

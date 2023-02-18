@@ -489,3 +489,47 @@ func TestReplace(t *testing.T) {
 
 	}
 }
+
+func TestRemove(t *testing.T) {
+	root := New("root")
+	nd0 := New(0)
+	nd1 := New(1)
+	nd2 := New(2)
+	root.Link(0, nd0, nd1, nd2)
+
+	tests := []struct {
+		node *Node
+		want string
+		err  error
+	}{
+		{nd0, "<root>[<1>,<2>]", nil},
+		{nd2, "<root>[<1>]", nil},
+		{root, "", ErrCannotRemoveRootNode},
+		{nd2, "", ErrCannotRemoveRootNode},
+		{nd1, "<root>", nil},
+	}
+
+	for _, tst := range tests {
+		nd, err := tst.node.Remove()
+		switch {
+		case err != nil && tst.err == nil:
+			t.Errorf("Remove(%q) returns an error %q, should be nil",
+				tst.node.String(), err.Error())
+		case err == nil && tst.err != nil:
+			t.Errorf("Remove(%q) returns no error, should be %q",
+				tst.node.String(), tst.err.Error())
+		case err != nil && tst.err != nil && err != tst.err:
+			t.Errorf("Remove(%q) returns error %q, should be %q",
+				tst.node.String(), err.Error(), tst.err.Error())
+		case err == nil && tst.err == nil:
+			if nd != tst.node {
+				t.Errorf("Remove(%q) returns node %q, should be node %q",
+					tst.node.String(), nd.String(), tst.node.String())
+			} else if s := root.String(); s != tst.want {
+				t.Errorf("Remove(%q) returns\n%q,\nshould be\n%q",
+					tst.node.String(), s, tst.want)
+			}
+		}
+	}
+
+}
