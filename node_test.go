@@ -176,8 +176,14 @@ func TestSiblingIndex(t *testing.T) {
 
 func TestSibling(t *testing.T) {
 	root := New("root")
-	sbls := []*Node{New(0), New(1), New(2), New(3), New(4)}
+	n0 := New(0)
+	sbls := []*Node{n0, New(1), New(2), New(3), New(4)}
 	root.Link(AtStart, sbls...)
+
+	if got := n0.Siblings(); len(got) != 0 {
+		t.Errorf("%s.Siblings() returns % d nodes, should be 0",
+			n0.String(), len(got))
+	}
 
 	for i, sbl := range root.Siblings() {
 		nd, err := root.Sibling(i)
@@ -337,10 +343,18 @@ func TestPathAndDistance(t *testing.T) {
 
 func TestRemoveAllSiblings(t *testing.T) {
 	root := New("root")
-	children := []*Node{New("s0"), New("s1")}
+	s0 := New("s0")
+	s1 := New("s1")
+	children := []*Node{s0, s1}
 	root.Link(0, children...)
 
-	got := root.RemoveAllSiblings()
+	got := s0.RemoveAllSiblings()
+	if l := len(got); l != 0 {
+		t.Errorf("%s.RemoveAllSiblings() returns %d nodes, should be 0",
+			s0.String(), l)
+	}
+
+	got = root.RemoveAllSiblings()
 	if root.Degree() != 0 {
 		t.Errorf("RemoveAllSiblings() failed")
 	} else {
@@ -465,25 +479,29 @@ func TestReplace(t *testing.T) {
 	}
 
 	for _, tst := range tests {
-		_, err := tst.node.Replace(tst.nodes...)
+		err := tst.node.Replace(tst.nodes...)
 		if err != nil {
 			println(err.Error())
 		}
 		switch {
 		case err != nil && tst.err == nil:
-			t.Errorf("Replace() returns an error %q, should be nil",
-				err.Error())
+			t.Errorf("%s.Replace() returns an error %q, should be nil",
+				tst.node.String(), err.Error())
 		case err == nil && tst.err != nil:
-			t.Errorf("Replace() returns no error, should be %q",
-				tst.err.Error())
+			t.Errorf("%s.Replace() returns no error, should be %q",
+				tst.node.String(), tst.err.Error())
 		case err != nil && tst.err != nil:
 			if err != tst.err {
-				t.Errorf("Replace() returns error %q, should be %q",
-					err.Error(), tst.err.Error())
+				t.Errorf("%s.Replace() returns error %q, should be %q",
+					tst.node.String(), err.Error(), tst.err.Error())
 			}
 		default:
-			if s := root.String(); s != tst.want {
-				t.Errorf("Replace() results in %q, should be %q", s, tst.want)
+			if tst.node.parent != nil {
+				t.Errorf("%s.Replace() returns node with parent %q, should be nill",
+					tst.node.String(), tst.node.parent.String())
+			} else if s := root.String(); s != tst.want {
+				t.Errorf("%s.Replace() results in %q, should be %q",
+					tst.node.String(), s, tst.want)
 			}
 		}
 
@@ -510,24 +528,24 @@ func TestRemove(t *testing.T) {
 	}
 
 	for _, tst := range tests {
-		nd, err := tst.node.Remove()
+		err := tst.node.Remove()
 		switch {
 		case err != nil && tst.err == nil:
-			t.Errorf("Remove(%q) returns an error %q, should be nil",
-				tst.node.String(), err.Error())
+			t.Errorf("%s.Remove(%q) returns an error %q, should be nil",
+				tst.node.String(), tst.node.String(), err.Error())
 		case err == nil && tst.err != nil:
-			t.Errorf("Remove(%q) returns no error, should be %q",
-				tst.node.String(), tst.err.Error())
+			t.Errorf("%s.Remove(%q) returns no error, should be %q",
+				tst.node.String(), tst.node.String(), tst.err.Error())
 		case err != nil && tst.err != nil && err != tst.err:
-			t.Errorf("Remove(%q) returns error %q, should be %q",
-				tst.node.String(), err.Error(), tst.err.Error())
+			t.Errorf("%s.Remove(%q) returns error %q, should be %q",
+				tst.node.String(), tst.node.String(), err.Error(), tst.err.Error())
 		case err == nil && tst.err == nil:
-			if nd != tst.node {
-				t.Errorf("Remove(%q) returns node %q, should be node %q",
-					tst.node.String(), nd.String(), tst.node.String())
+			if tst.node.parent != nil {
+				t.Errorf("%s.Remove(%q) returns node with parent %q, should be nill",
+					tst.node.String(), tst.node.String(), tst.node.parent.String())
 			} else if s := root.String(); s != tst.want {
-				t.Errorf("Remove(%q) returns\n%q,\nshould be\n%q",
-					tst.node.String(), s, tst.want)
+				t.Errorf("%s.Remove(%q) returns\n%q,\nshould be\n%q",
+					tst.node.String(), tst.node.String(), s, tst.want)
 			}
 		}
 	}

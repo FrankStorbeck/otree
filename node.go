@@ -164,21 +164,23 @@ func (nd *Node) Path(node *Node) ([]*Node, error) {
 	return mergePaths(up, down)
 }
 
-// Remove removes nd from the tree. It returns nd with an invalidated
-// parent. The root node cannot bee removed.
-func (nd *Node) Remove() (*Node, error) {
+// Remove removes nd from the tree. On return nd has an invalidated
+// parent. The root node cannot be removed.
+func (nd *Node) Remove() error {
 	p := nd.parent
 	if p == nil {
-		return nd, ErrCannotRemoveRootNode
+		return ErrCannotRemoveRootNode
 	}
 	i, err := nd.Index()
 	if err != nil {
-		return nd, err
+		return err
 	}
-	return p.RemoveSibling(i)
+
+	_, err = p.RemoveSibling(i)
+	return err
 }
 
-// RemoveAllSiblings removes all nd's siblings. It returns a slice with
+// RemoveAllSiblings removes all nd's siblings from the tree. It returns a slice with
 // the removed siblings. Their parents are invalidated.
 func (nd *Node) RemoveAllSiblings() []*Node {
 	if nd.IsLeaf() {
@@ -195,7 +197,7 @@ func (nd *Node) RemoveAllSiblings() []*Node {
 }
 
 // RemoveSibling removes the nd's child with the provided index in the list
-// of siblings. It returns the removed sibling. Its parents is invalidated.
+// of siblings. It returns the removed sibling. Its parent is invalidated.
 // If there is no node with the given index, ErrNodeNotFound will be returned.
 func (nd *Node) RemoveSibling(index int) (*Node, error) {
 	l := nd.Degree()
@@ -213,20 +215,20 @@ func (nd *Node) RemoveSibling(index int) (*Node, error) {
 	return node, nil
 }
 
-// Replace replaces nd by nodes. It returns itself with an invalidated
-// parent. If nd is the root node ErrCannotReplaceRootNode will be returned.
-func (nd *Node) Replace(nodes ...*Node) (*Node, error) {
+// Replace replaces nd by nodes. nd's parent wil be invalidated. If nd is the
+// root node ErrCannotReplaceRootNode will be returned.
+func (nd *Node) Replace(nodes ...*Node) error {
 	p, err := nd.Parent()
 	if err != nil {
-		return nd, ErrCannotReplaceRootNode
+		return ErrCannotReplaceRootNode
 	}
 
 	i, err := nd.Index()
 	if err != nil {
-		return nd, err
+		return err
 	}
-
-	return p.ReplaceSibling(i, nodes...)
+	_, err = p.ReplaceSibling(i, nodes...)
+	return err
 }
 
 // ReplaceSibling replaces the child in the list of siblings with the provided
