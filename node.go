@@ -1,3 +1,5 @@
+// Package otree implements functions for manipulating an ordered tree
+// structure.
 package otree
 
 import (
@@ -5,10 +7,12 @@ import (
 	"strings"
 )
 
-// Node represents internal and external/leaf nodes. It can hold links to other
-// nodes which are called its children. These children are named the node's
-// siblings. All nodes other than the root node hold one parent node.
-// Internal nodes have children, external nodes don't.
+// Node` is a structure which may contain data and links to other nodes.
+// It has zero or more `child` nodes and exactly one link to a parent node,
+// exept the root node. The child nodes of a parent node are the sibling nodes.
+// The siblings have an order.
+// An internal node is any node of a tree that has one or more child nodes. An
+// external node, or leaf node, is any node that does not have child nodes.
 type Node struct {
 	Data     interface{} // stored data
 	parent   *Node       // parent node
