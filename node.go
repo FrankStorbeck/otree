@@ -1,3 +1,5 @@
+// Package otree implements functions for manipulating an ordered tree
+// structure.
 package otree
 
 import (
@@ -5,10 +7,12 @@ import (
 	"strings"
 )
 
-// Node represents internal and external/leaf nodes. It can hold links to other
-// nodes which are called its children. These children are named the node's
-// siblings. All nodes other than the root node hold one parent node.
-// Internal nodes have children, external nodes don't.
+// Node` is a structure which may contain data and links to other nodes.
+// It has zero or more `child` nodes and exactly one link to a parent node,
+// exept the root node. The child nodes of a parent node are the sibling nodes.
+// The siblings have an order.
+// An internal node is any node of a tree that has one or more child nodes. An
+// external node, or leaf node, is any node that does not have child nodes.
 type Node struct {
 	Data     interface{} // stored data
 	parent   *Node       // parent node
@@ -57,7 +61,7 @@ func (nd *Node) Height() int {
 	l := nd.Level()
 
 	f := func(node *Node, data interface{}) {
-		if node.siblings == nil || len(node.siblings) == 0 {
+		if node.IsLeaf() {
 			if h := node.Level() - l; h > height {
 				height = h
 			}
@@ -69,8 +73,7 @@ func (nd *Node) Height() int {
 }
 
 // Index returns the index in the list of siblings to which nd belongs.
-// Finding the index of a root node results in ErrParentMissing to be
-// returned.
+// Finding the index of a root node results in returning ErrParentMissing.
 func (nd *Node) Index() (int, error) {
 	p, err := nd.Parent()
 	if err != nil {
@@ -102,13 +105,13 @@ func (nd *Node) Level() int {
 // end of the list of siblings.
 func (nd *Node) Link(index int, nodes ...*Node) error {
 	newNodes := make(map[*Node]dummyType)
-	found, collectNodes := false, true
+	found := false
 
 	// f is a WalkFunc to test if there are any duplicate nodes in a tree
-	f := func(node *Node, data interface{}) {
+	f := func(node *Node, collectNodes interface{}) {
 		if !found {
 			_, found = newNodes[node]
-			if !found && collectNodes {
+			if !found && collectNodes.(bool) {
 				newNodes[node] = dummy
 			}
 		}
@@ -116,16 +119,13 @@ func (nd *Node) Link(index int, nodes ...*Node) error {
 
 	// test for duplicates in the provided nodes
 	for _, n := range nodes {
-		n.Walk(f, nil)
-		if found {
+		if n.Walk(f, true); found {
 			return ErrDuplicateNodeFound
 		}
 	}
 
 	// tests for duplicates in the node's tree
-	collectNodes = false
-	nd.Root().Walk(f, nil)
-	if found {
+	if nd.Root().Walk(f, false); found {
 		return ErrDuplicateNodeFound
 	}
 
@@ -209,7 +209,12 @@ func (nd *Node) RemoveSibling(index int) (*Node, error) {
 	copy(siblings, nd.siblings[:index])
 	node := nd.siblings[index]
 	copy(siblings[index:], nd.siblings[index+1:])
-	nd.siblings = siblings
+
+	if len(siblings) == 0 {
+		nd.siblings = nil
+	} else {
+		nd.siblings = siblings
+	}
 
 	node.parent = nil
 	return node, nil
@@ -301,7 +306,8 @@ func (nd *Node) String() string {
 	return sb.String()
 }
 
-// Walk executes f for nd and all of its descendants.
+// Walk executes f for nd and all of its descendants. data will be used
+// as the second argument for f.
 func (nd *Node) Walk(f WalkFunc, data interface{}) {
 	f(nd, data)
 	if nd.siblings != nil {
