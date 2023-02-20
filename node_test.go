@@ -422,7 +422,7 @@ func TestReplaceSibling(t *testing.T) {
 		{1, []*Node{New("sb"), New("sc")}, nil, "<root>[<s0>,<sb>,<sc>,<s2>]"},
 		{0, []*Node{New("sd"), New("se")}, nil, "<root>[<sd>,<se>,<sb>,<sc>,<s2>]"},
 		{4, []*Node{New("sf")}, nil, "<root>[<sd>,<se>,<sb>,<sc>,<sf>]"},
-		{AtStart, []*Node{New("sg")}, ErrNodeNotFound, ""},
+		{-1, []*Node{New("sg")}, ErrNodeNotFound, ""},
 		{5, []*Node{New("sh")}, ErrNodeNotFound, ""},
 	}
 

@@ -4,7 +4,7 @@ import "errors"
 
 // a list
 const (
-	AtStart = -1                 // index number that can be used to indicate the start of a node list
+	AtStart = 0                  // index number that can be used to indicate the start of a node list
 	AtEnd   = int(^uint(0) >> 1) // index number that can be used to indicate the end of a node list
 
 )
