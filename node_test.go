@@ -57,7 +57,7 @@ func TestString(t *testing.T) {
 	root.Link(AtStart, s0)
 
 	got := root.String()
-	want := "<root>[<s0>]"
+	want := "root[s0]"
 	if got != want {
 		t.Errorf("String() returns %q, should be %q", got, want)
 	}
@@ -78,18 +78,18 @@ func TestLink(t *testing.T) {
 		want   string
 		degree int
 	}{
-		{root, 0, []*Node{s0}, nil, "<root>[<s0>]", 1},
-		{root, AtStart, []*Node{New("s1"), New("s2")}, nil, "<root>[<s1>,<s2>,<s0>]", 3},
-		{root, 1, []*Node{New("s3"), New("s4")}, nil, "<root>[<s1>,<s3>,<s4>,<s2>,<s0>]", 5},
-		{root, AtEnd, []*Node{New("s5")}, nil, "<root>[<s1>,<s3>,<s4>,<s2>,<s0>,<s5>]", 6},
+		{root, 0, []*Node{s0}, nil, "root[s0]", 1},
+		{root, AtStart, []*Node{New("s1"), New("s2")}, nil, "root[s1 s2 s0]", 3},
+		{root, 1, []*Node{New("s3"), New("s4")}, nil, "root[s1 s3 s4 s2 s0]", 5},
+		{root, AtEnd, []*Node{New("s5")}, nil, "root[s1 s3 s4 s2 s0 s5]", 6},
 		{root, AtStart, []*Node{root}, ErrDuplicateNodeFound, "", 6},
-		{parent, AtEnd, []*Node{child}, nil, "<parent>[<child>]", 1},
+		{parent, AtEnd, []*Node{child}, nil, "parent[child]", 1},
 		{parent, AtEnd, []*Node{parent}, ErrDuplicateNodeFound, "", 1},
 		{parent, AtEnd, []*Node{child}, ErrDuplicateNodeFound, "", 1},
 		{root, AtEnd, []*Node{parent, parent}, ErrDuplicateNodeFound, "", 6},
-		{root, AtEnd, []*Node{parent}, nil, "<root>[<s1>,<s3>,<s4>,<s2>,<s0>,<s5>,<parent>[<child>]]", 7},
+		{root, AtEnd, []*Node{parent}, nil, "root[s1 s3 s4 s2 s0 s5 parent[child]]", 7},
 		{root, AtEnd, []*Node{child}, ErrDuplicateNodeFound, "", 7},
-		{otherParent, AtEnd, []*Node{child}, nil, "<otherParent>[<child>]", 1},
+		{otherParent, AtEnd, []*Node{child}, nil, "otherParent[child]", 1},
 		{root, AtEnd, []*Node{otherParent}, ErrDuplicateNodeFound, "", 7},
 	}
 	for i, tst := range tests {
@@ -418,10 +418,10 @@ func TestReplaceSibling(t *testing.T) {
 		err   error
 		want  string
 	}{
-		{1, []*Node{New("sa")}, nil, "<root>[<s0>,<sa>,<s2>]"},
-		{1, []*Node{New("sb"), New("sc")}, nil, "<root>[<s0>,<sb>,<sc>,<s2>]"},
-		{0, []*Node{New("sd"), New("se")}, nil, "<root>[<sd>,<se>,<sb>,<sc>,<s2>]"},
-		{4, []*Node{New("sf")}, nil, "<root>[<sd>,<se>,<sb>,<sc>,<sf>]"},
+		{1, []*Node{New("sa")}, nil, "root[s0 sa s2]"},
+		{1, []*Node{New("sb"), New("sc")}, nil, "root[s0 sb sc s2]"},
+		{0, []*Node{New("sd"), New("se")}, nil, "root[sd se sb sc s2]"},
+		{4, []*Node{New("sf")}, nil, "root[sd se sb sc sf]"},
 		{-1, []*Node{New("sg")}, ErrNodeNotFound, ""},
 		{5, []*Node{New("sh")}, ErrNodeNotFound, ""},
 	}
@@ -473,8 +473,8 @@ func TestReplace(t *testing.T) {
 		err   error
 		want  string
 	}{
-		{s1, []*Node{New("sa")}, nil, "<root>[<s0>,<sa>,<s2>]"},
-		{s0, []*Node{New("sb"), New("sc")}, nil, "<root>[<sb>,<sc>,<sa>,<s2>]"},
+		{s1, []*Node{New("sa")}, nil, "root[s0 sa s2]"},
+		{s0, []*Node{New("sb"), New("sc")}, nil, "root[sb sc sa s2]"},
 		{root, []*Node{New("sd"), New("se")}, ErrCannotReplaceRootNode, ""},
 	}
 
@@ -520,11 +520,11 @@ func TestRemove(t *testing.T) {
 		want string
 		err  error
 	}{
-		{nd0, "<root>[<1>,<2>]", nil},
-		{nd2, "<root>[<1>]", nil},
+		{nd0, "root[1 2]", nil},
+		{nd2, "root[1]", nil},
 		{root, "", ErrCannotRemoveRootNode},
 		{nd2, "", ErrCannotRemoveRootNode},
-		{nd1, "<root>", nil},
+		{nd1, "root", nil},
 	}
 
 	for _, tst := range tests {
