@@ -9,8 +9,8 @@ import (
 
 // Node` is a structure which may contain data and links to other nodes.
 // It has zero or more `child` nodes and exactly one link to a parent node,
-// exept the root node. The child nodes of a parent node are the sibling nodes.
-// The siblings have an order.
+// exept the root node. The child nodes of a parent node are the siblings.
+// These siblings have an order.
 // An internal node is any node of a tree that has one or more child nodes. An
 // external node, or leaf node, is any node that does not have child nodes.
 type Node struct {
@@ -29,22 +29,19 @@ var dummy = dummyType{}
 
 // Ancestors returns the node's ancestors. The first one is it parent, the next
 // one its grandparent and so on until the root node is found.
-func (nd *Node) Ancestors() []*Node {
-	ancestors := []*Node{}
-
+func (nd *Node) Ancestors() (ancestors []*Node) {
 	for p := nd.parent; p != nil; p = p.parent {
 		ancestors = append(ancestors, p)
 	}
-	return ancestors
+	return
 }
 
 // Degree returns nd's degree, i.e. the number of siblings.
-func (nd *Node) Degree() int {
-	d := 0
+func (nd *Node) Degree() (d int) {
 	if nd.siblings != nil {
 		d = len(nd.siblings)
 	}
-	return d
+	return
 }
 
 // Distance returns nd's distance (the number of edges) to node. If nd
@@ -56,8 +53,7 @@ func (nd *Node) Distance(node *Node) (int, error) {
 }
 
 // Height returns nd's height, i.e. the longest downward path to a leaf.
-func (nd *Node) Height() int {
-	var height int
+func (nd *Node) Height() (height int) {
 	l := nd.Level()
 
 	f := func(node *Node, data interface{}) {
@@ -69,7 +65,7 @@ func (nd *Node) Height() int {
 	}
 
 	nd.Walk(f, nil)
-	return height
+	return
 }
 
 // Index returns the index in the list of siblings to which nd belongs.
@@ -89,12 +85,11 @@ func (nd *Node) IsLeaf() bool {
 
 // Level returns nd's level, i.e. the zero-based counting of edges along
 // the path to the root node. It is the same as its depth.
-func (nd *Node) Level() int {
-	n := 0
+func (nd *Node) Level() (n int) {
 	for p := nd.parent; p != nil; p = p.parent {
 		n++
 	}
-	return n
+	return
 }
 
 // Link links nodes to nd. They will be inserted just before the
@@ -292,13 +287,13 @@ func (nd *Node) SiblingIndex(child *Node) (int, error) {
 func (nd *Node) String() string {
 	sb := strings.Builder{}
 
-	fmt.Fprintf(&sb, "<%v>", nd.Data)
+	fmt.Fprintf(&sb, "%v", nd.Data)
 	if nd.siblings != nil && len(nd.siblings) > 0 {
 		fmt.Fprintf(&sb, "[")
 		sep := ""
 		for _, sbl := range nd.siblings {
 			fmt.Fprintf(&sb, "%s%s", sep, sbl.String())
-			sep = ","
+			sep = " "
 		}
 		fmt.Fprintf(&sb, "]")
 
@@ -315,4 +310,16 @@ func (nd *Node) Walk(f WalkFunc, data interface{}) {
 			sbl.Walk(f, data)
 		}
 	}
+}
+
+// WalkUp executes f for nd and all of its descendants. data will be used
+// as the second argument for f. In contrast to Walk, f will be performed to
+// nd's siblings before executing it on nd itself.
+func (nd *Node) WalkUp(f WalkFunc, data interface{}) {
+	if nd.siblings != nil {
+		for _, sbl := range nd.siblings {
+			sbl.Walk(f, data)
+		}
+	}
+	f(nd, data)
 }

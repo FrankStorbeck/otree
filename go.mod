@@ -1,3 +1,3 @@
-module github.com/FrankStorbeck/otree
+module storbeck.nl/otree
 
 go 1.18
